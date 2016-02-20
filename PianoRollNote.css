@@ -1,0 +1,7 @@
+.PianoRollNote-note {
+  height: 16px;
+  background-color: pink;
+  border: 1px solid white;
+  position: absolute;
+  z-index: 1;
+}
