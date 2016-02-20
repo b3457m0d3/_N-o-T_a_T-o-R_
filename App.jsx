@@ -36,7 +36,6 @@ class App extends React.Component {
   constructor() {
     super();
     this.store = createStore(stateReducer);
-    this.store.dispatch({type: 'DUMMY'});
   }
   render() {
     return (<PianoRoll store={this.store} width='600px' height='300px'/>)
