@@ -53,3 +53,7 @@ div {
   height: 16px;
   background-image: url(images/sequencer1.gif);
 }
+
+.PianoRoll-toolbar {
+  margin: 5px;
+}

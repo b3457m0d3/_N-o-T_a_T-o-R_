@@ -1,5 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
+import { Button, ButtonGroup, Glyphicon } from 'react-bootstrap';
+
 import PianoRollNote from './PianoRollNote.jsx';
 import { addNote, removeNote } from './action-creators';
 
@@ -45,8 +47,7 @@ class PianoRoll extends React.Component {
       scrollYPos: 0,
     });
     this.noteMapper = this.noteMapper.bind(this);
-    this.onNoteClick = this.onNoteClick.bind(this);
-    //this.onEmptyCellClick = this.onEmptyCellClick(this);    
+    this.props.store.subscribe(this.update);
   }
   componentDidMount() {
     this.sequencer.onscroll = () => {
@@ -58,31 +59,41 @@ class PianoRoll extends React.Component {
     };
     this.update();
   }
-  onNoteClick() {
-    this.props.store.dispatch(removeNote(i));
-  }
   noteMapper(note, i) {
-    return <PianoRollNote onClick={this.onNoteClick} key={i} 
-    left={this.state.scrollXPos + note.start*noteWidth} 
-    top={this.state.scrollYPos + note.tone*noteHeight}
+    return <PianoRollNote key={i} 
+    left={note.start*noteWidth} 
+    top={note.tone*noteHeight}
     width={note.length * noteWidth}
     />
   }
   update() {
-    console.log(this.props.store.getState());
     this.setState({displayedNotes: this.props.store.getState().notes.map(this.noteMapper)});
   }
-  onEmptyCellClick(e) {
-    const start = Math.floor((e.clientX - defaultXOffset)/noteWidth);
-    const tone = Math.floor((e.clientY - defaultYOffset)/noteHeight);
+  onEmptyCellClick({clientX, clientY}) {
+    if (!this.state) {
+      return;
+    }
+    const start = Math.floor((clientX - defaultXOffset + this.state.scrollXPos)/noteWidth);
+    const tone = Math.floor((clientY - defaultYOffset + this.state.scrollYPos)/noteHeight);
     const length = 1;
-    console.log(start, tone);
     if (!isNaN(start) && !isNaN(tone)) {
       this.props.store.dispatch(addNote(tone, start, length)); 
     }
   }
   render() {
     return (
+      <div>
+      <div>
+        <ButtonGroup className="PianoRoll-toolbar">
+          <Button><Glyphicon glyph="pencil" /></Button>
+          <Button><Glyphicon glyph="unchecked" /></Button>
+          <Button><Glyphicon glyph="remove" /></Button>
+        </ButtonGroup>
+        <ButtonGroup className="PianoRoll-toolbar">
+          <Button><Glyphicon glyph="play" /></Button>
+          <Button><Glyphicon glyph="stop" /></Button>
+        </ButtonGroup>        
+      </div>
       <div style={{height: this.props.height, width: this.props.width}}>
         <div className="PianoRoll-keylist-outer">
           <div className="PianoRoll-keylist-inner" ref={(c) => this.keyboard = c}>
@@ -90,12 +101,14 @@ class PianoRoll extends React.Component {
           </div>
         </div>
         <div className="PianoRoll-lane-outer" ref={(c) => this.sequencer = c}>
-          <div className="PianoRoll-lane-inner" onClick={this.onEmptyCellClick}>
+          <div className="PianoRoll-lane-inner" onClick={(e) => this.onEmptyCellClick(e)}>
           {keyLanes}
           {this.state.displayedNotes}
           </div>
         </div>
-      </div>);
+      </div>
+      </div>
+      );
   }
 }
 
