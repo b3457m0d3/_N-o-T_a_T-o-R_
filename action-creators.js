@@ -1,15 +1,16 @@
-export function addNote(tone, start, length) {
+export function addNote(tone, start, duration) {
   return {
     type: 'ADD_NOTE',
     tone,
     start, 
-    length
+    duration
   };
 }
 
-export function removeNote(id) {
+export function removeNote(beat, tone) {
   return {
     type: 'REMOVE_NOTE',
-    id
+    beat,
+    tone
   };
 }

@@ -6,27 +6,26 @@ import { addNote } from './action-creators';
 
 const initialState = {
   notes: [
-    { start: 0, length: 2, tone: 10 }, 
-    { start: 6, length: 1, tone: 5 }
   ]
 };
 
 const actionProcessors = {
-  'ADD_NOTE': (state, {tone, start, length}) => { 
+  'ADD_NOTE': (state, {tone, start, duration}) => { 
     return {
       ...state, 
-      notes: state.notes.concat([{tone, start, length}]) 
+      notes: state.notes.concat([{tone, start, duration}]) 
     }; 
   },
-  'REMOVE_NOTE': (state, {id}) => { 
+  'REMOVE_NOTE': (state, {beat, tone}) => { 
     return { 
       ...state, 
-      notes: state.notes.filter((note) => note.id !== id) 
+      notes: state.notes.filter((note) => !(note.start <= beat && (note.start + note.duration >= beat) && note.tone === tone))
     }; 
   },
 };
 
 function stateReducer(state = initialState, action) {
+  console.log(action);
   if (!actionProcessors[action.type]) {
     return state;
   }
