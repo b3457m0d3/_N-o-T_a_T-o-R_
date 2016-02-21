@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Button, ButtonGroup, Glyphicon, ButtonToolbar } from 'react-bootstrap';
 
 import PianoRollNote from './PianoRollNote.jsx';
-import { addNote, removeNote } from './action-creators';
+import { addNote, removeNotes, moveNotes } from './action-creators';
 
 import './PianoRoll.css';
 
@@ -14,6 +14,7 @@ const editModes = {
   erase: 'erase',
 };
 const defaultDrawNote = {inProgress: false, duration: 1, tone: 0, start: 0};
+const defaultDrag = { inProgress: false, selectedNotes: [], startBeat: 0, startTone: 0 };
 
 const noteWidth = 25;
 const noteHeight = 16;
@@ -44,9 +45,11 @@ class PianoRoll extends React.Component {
     super();
     this.updateNotes = this.updateNotes.bind(this);
     this.getNotePosition = this.getNotePosition.bind(this);
+    this.getNoteByPosition = this.getNoteByPosition.bind(this);
   }
   componentWillMount() {
     this.setState({
+      drag: defaultDrag,
       displayedNotes: [],
       editMode: editModes.draw,
       drawNote: defaultDrawNote
@@ -68,11 +71,22 @@ class PianoRoll extends React.Component {
     />;
   }
   setEditMode(mode) {
-    this.setState({drawNote: defaultDrawNote})
+    this.setState({drawNote: defaultDrawNote});
     this.setState({editMode: mode});
   }
   updateNotes() {
     this.setState({displayedNotes: this.props.store.getState().notes.map(this.noteMapper)});
+  }
+  getNoteByPosition(beat, tone) {
+    const foundNoteIndexes = this.props.store.getState().notes.reduce((found, note, index) => {
+      if  (note.start <= beat && (note.start + note.duration >= beat) && note.tone === tone) {
+        return found.concat([index]);
+      }
+      return found;
+    }, []);
+    if (foundNoteIndexes) {
+      return foundNoteIndexes[0];
+    }
   }
   getNotePosition(pageX, pageY) {
     const beat = Math.floor((pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft)/noteWidth);
@@ -83,6 +97,18 @@ class PianoRoll extends React.Component {
     const {beat, tone} = this.getNotePosition(pageX, pageY);
     const mode = this.state.editMode;
     if (mode === editModes.draw) {
+      const noteUnderMouse = this.getNoteByPosition(beat, tone);
+      if (noteUnderMouse) {
+        console.log(noteUnderMouse);
+        return this.setState({
+          drag: {
+            inProgress: true,
+            selectedNotes: [noteUnderMouse],
+            startBeat: beat,
+            startTone: tone
+          }
+        });
+      }
       this.setState({drawNote: {
         start: beat, 
         tone, 
@@ -95,11 +121,19 @@ class PianoRoll extends React.Component {
     const {beat, tone} = this.getNotePosition(pageX, pageY);
     const mode = this.state.editMode;
     if (mode === editModes.draw) {
+      if (this.state.dragInProgress) {
+        const beatDistance = beat - this.state.drag.startBeat;
+        const toneDistance = tone - this.state.drag.startTone;
+        this.props.store.dispatch(moveNotes(this.state.drag.selectedNotes, beatDistance, toneDistance));
+        this.setState({drag: defaultDrag});
+        return;
+      }
       this.props.store.dispatch(addNote(this.state.drawNote.tone, this.state.drawNote.start, this.state.drawNote.duration));
       this.setState({drawNote: defaultDrawNote});      
     }
     if (mode === editModes.erase) {
-      this.props.store.dispatch(removeNote(beat, tone));
+      const noteUnderMouse = this.getNoteByPosition(beat, tone);
+      this.props.store.dispatch(removeNotes([noteUnderMouse]));
     }
   }
   onSequencerMouseMove({pageX, pageY}) {
