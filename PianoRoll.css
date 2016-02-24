@@ -23,6 +23,7 @@ div {
   height: 100%;
   overflow: scroll;
   margin-left: 50px;
+  z-index: 10000;
 }
 
 .PianoRoll-lane-inner {

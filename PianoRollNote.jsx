@@ -3,7 +3,7 @@ import './PianoRollNote.css';
 
 class PianoRollNote extends React.Component {
   render() {
-    return <div style={{left: this.props.left, top: this.props.top, width: this.props.width}} className="PianoRollNote-note" ></div>;
+    return <div id={this.props.uniqueId} style={{left: this.props.left, top: this.props.top, width: this.props.width}} className="PianoRollNote-note" ></div>;
   }
 }
 

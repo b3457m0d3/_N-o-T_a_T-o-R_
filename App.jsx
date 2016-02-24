@@ -6,6 +6,7 @@ import { addNote } from './action-creators';
 
 const initialState = {
   notes: [
+    { tone: 55, duration: 2, start: 0 }
   ]
 };
 
@@ -19,20 +20,28 @@ const actionProcessors = {
   'REMOVE_NOTES': (state, {ids}) => { 
     return { 
       ...state, 
-      notes: state.notes.filter((note) => ids.indexOf(note.id) !== -1)
+      notes: state.notes.filter((note, index) => ids.indexOf(index) === -1)
     }; 
   },
-  'MOVE_NOTES' : (state, {ids, beatDistance, toneDistance}) => {
+  'MOVE_NOTES' : (state, {ids, beats, tones}) => {
     return { 
       ...state, 
-      notes: state.notes.map((note) => {
-        if (ids.indexOf(note.id) === -1) {
+      notes: state.notes.map((note, index) => {
+        if (ids.indexOf(index) === -1) {
           return note;
+        }
+        let newStart = note.start + beats;
+        if (newStart < 0) {
+          newStart = 0;
+        }
+        let newTone = note.tone + tones;
+        if (newTone < 0) {
+          newTone = 0;
         }
         return { 
           ...note, 
-          tone: note.tone + toneDistance, 
-          start: note.start + beatDistance 
+          tone: newTone, 
+          start: newStart 
         };
       })
     };
