@@ -6,7 +6,6 @@ import { addNote } from './action-creators';
 
 const initialState = {
   notes: [
-    { tone: 55, duration: 2, start: 0 }
   ]
 };
 

@@ -81,7 +81,6 @@ class PianoRoll extends React.Component {
     this.setState({editMode: mode});
   }
   updateNotes() {
-    console.log('update!');
     this.setState({displayedNotes: this.props.store.getState().notes.map(this.noteMapper)});
   }
   getNoteByPosition(beat, tone) {
@@ -107,7 +106,6 @@ class PianoRoll extends React.Component {
     return {beat, tone};
   }
   noteDragMouseUp(e) {
-    console.log('noteMouseUp');
     document.onmousemove = null;
     document.onmouseup = null;
     const {beat, tone} = this.getGridPosition(e.pageX, e.pageY);
@@ -142,7 +140,6 @@ class PianoRoll extends React.Component {
     if (mode === editModes.draw) {
       const {beat, tone} = this.getGridPosition(pageX, pageY);
       const noteUnderMouse = this.getNoteByPosition(beat, tone);
-      console.log(beat, tone, noteUnderMouse);
       if (noteUnderMouse >= 0) {
         const target = document.getElementById('gridNote_' + noteUnderMouse);
         const shiftX = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft - parseInt(target.style.left, 10);
