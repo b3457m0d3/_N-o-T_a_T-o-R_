@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { Button, ButtonGroup, Glyphicon, ButtonToolbar } from 'react-bootstrap';
 
 import PianoRollNote from './PianoRollNote.jsx';
+import PianoRollSelection from './PianoRollSelection.jsx';
 import { addNote, removeNotes, moveNotes } from './action-creators';
 
 import './PianoRoll.css';
@@ -15,6 +16,7 @@ const editModes = {
 };
 const defaultDrawNote = {inProgress: false, duration: 1, tone: 0, start: 0};
 const defaultDrag = { inProgress: false, startBeat: 0, startTone: 0, shiftX: 0, shiftY: 0 };
+const defaultSelection = { active: false, top: 0, left: 0, right: 0, bottom: 0 };
 
 const noteWidth = 25;
 const noteHeight = 16;
@@ -48,6 +50,7 @@ class PianoRoll extends React.Component {
     this.getNoteByPosition = this.getNoteByPosition.bind(this);
     this.noteDragMouseUp = this.noteDragMouseUp.bind(this);
     this.noteDragMouseMove= this.noteDragMouseMove.bind(this);
+    this.isClickOutOfSequencer = this.isClickOutOfSequencer.bind(this);
   }
   componentWillMount() {
     this.setState({
@@ -55,10 +58,13 @@ class PianoRoll extends React.Component {
       displayedNotes: [],
       editMode: editModes.draw,
       drawNote: defaultDrawNote,
-      selectedNotes: []
+      selectedNotes: [],
+      selection: defaultSelection,
     });
     this.noteMapper = this.noteMapper.bind(this);
     this.props.store.subscribe(this.updateNotes);
+    document.onselectstart = () => false;
+    document.ondragstart = () => false;    
   }
   componentDidMount() {
     this.sequencer.onscroll = () => {
@@ -67,6 +73,10 @@ class PianoRoll extends React.Component {
     this.sequencer.onselectstart = () => false;
     this.sequencer.ondragstart = () => false;
     this.updateNotes();
+  }
+  isClickOutOfSequencer(pageX, pageY) {
+    return (pageX >= this.sequencer.offsetLeft + this.sequencer.offsetWidth - 20 ||
+        pageY >= this.sequencer.offsetTop + this.sequencer.offsetHeight - 20);
   }
   noteMapper(note, i) {
     return <PianoRollNote key={i}
@@ -132,8 +142,7 @@ class PianoRoll extends React.Component {
     });
   }
   onSequencerMouseDown({pageX, pageY}) {
-    if (pageX >= this.sequencer.offsetLeft + this.sequencer.offsetWidth - 20 ||
-        pageY >= this.sequencer.offsetTop + this.sequencer.offsetHeight - 20) {
+    if (this.isClickOutOfSequencer(pageX, pageY)) {
       return false;
     }
     const mode = this.state.editMode;
@@ -145,7 +154,7 @@ class PianoRoll extends React.Component {
         const shiftX = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft - parseInt(target.style.left, 10);
         const shiftY = pageY - this.sequencer.offsetTop + this.sequencer.scrollTop - parseInt(target.style.top, 10);
         this.setState({
-          selectedNotes: [noteUnderMouse],
+          selectedNotes: [noteUnderMouse],///TODO check if note is already in selected, then use current selection
           drag: {
             inProgress: true,
             startBeat: beat,
@@ -154,8 +163,6 @@ class PianoRoll extends React.Component {
             shiftY
           }
         });
-        document.onselectstart = () => false;
-        document.ondragstart = () => false;
         document.onmousemove = this.noteDragMouseMove;
         document.onmouseup = this.noteDragMouseUp;
         return false;
@@ -169,11 +176,23 @@ class PianoRoll extends React.Component {
           duration: 1
         }
       });
-      return false;
     }
+    if (mode === editModes.select) {
+      this.setState({ selection: {
+        active: true,
+        left: pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft,
+        top: pageY - this.sequencer.offsetTop + this.sequencer.scrollTop,
+        right: 0,
+        bottom: 0
+      }});
+    }
+    return false;    
   }
   onSequencerMouseUp({pageX, pageY}) {
-    const {beat, tone} = this.getGridPosition(pageX, pageY);
+    if (this.isClickOutOfSequencer(pageX, pageY)) {
+      return false;
+    }    
+    const { beat, tone } = this.getGridPosition(pageX, pageY);
     const mode = this.state.editMode;
     if (mode === editModes.draw) {
       if (!this.state.drag.inProgress && this.state.drawNote.inProgress) {
@@ -185,10 +204,15 @@ class PianoRoll extends React.Component {
       const noteUnderMouse = this.getNoteByPosition(beat, tone);
       this.props.store.dispatch(removeNotes([noteUnderMouse]));
     }
+    if (mode === editModes.select) {
+      this.setState({ selection: defaultSelection});
+      //TODO get notes under selection and add them to selection
+    }    
     return false;
   }
   onSequencerMouseMove({pageX, pageY}) {
-    if (this.state.editMode === editModes.draw) {
+    const mode = this.state.editMode;
+    if (mode === editModes.draw) {
       const {beat, tone} = this.getGridPosition(pageX, pageY);
       if (!this.state.drag.inProgress && this.state.drawNote.inProgress) {
         const calculatedDuration = 1 + beat - this.state.drawNote.start;
@@ -202,6 +226,17 @@ class PianoRoll extends React.Component {
         });
       }
     }
+    if (mode === editModes.select) {
+      if (this.state.selection.active) {
+        this.setState({ selection: {
+          active: true,
+          top: this.state.selection.top,
+          left: this.state.selection.left,
+          right: pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft,
+          bottom: pageY - this.sequencer.offsetTop + this.sequencer.scrollTop,
+        }});
+      }
+    }    
     return false;
   }
   render() {
@@ -212,6 +247,7 @@ class PianoRoll extends React.Component {
         <ButtonGroup>
           <Button active={this.state.editMode === editModes.draw} onClick={() => this.setEditMode(editModes.draw) }><Glyphicon glyph="pencil" /></Button>
           <Button active={this.state.editMode === editModes.erase} onClick={() => this.setEditMode(editModes.erase) }><Glyphicon glyph="remove" /></Button>
+          <Button active={this.state.editMode === editModes.select} onClick={() => this.setEditMode(editModes.select) }><Glyphicon glyph="unchecked" /></Button>
         </ButtonGroup>
       </ButtonToolbar>
       </div>
@@ -234,6 +270,7 @@ class PianoRoll extends React.Component {
             top={(keyCount - this.state.drawNote.tone)*noteHeight}
             width={this.state.drawNote.duration * noteWidth}
           />
+          <PianoRollSelection rect={this.state.selection}></PianoRollSelection>          
           </div>
         </div>
       </div>

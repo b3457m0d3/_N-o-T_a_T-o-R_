@@ -1,0 +1,7 @@
+.PianoRollSelection {
+  border: 1px solid blue;
+  position: absolute;
+  background-color: navy;
+  opacity: 0.5;
+  z-index: 10000;
+}
