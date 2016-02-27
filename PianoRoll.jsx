@@ -64,6 +64,8 @@ class PianoRoll extends React.Component {
     this.noteDragMouseUp = this.noteDragMouseUp.bind(this);
     this.noteDragMouseMove= this.noteDragMouseMove.bind(this);
     this.isClickOutOfSequencer = this.isClickOutOfSequencer.bind(this);
+    this.getNoteByCoordinates = this.getNoteByCoordinates.bind(this);
+    this.calculateDragDistance = this.calculateDragDistance.bind(this);
   }
   componentWillMount() {
     this.setState({
@@ -105,7 +107,26 @@ class PianoRoll extends React.Component {
     this.setState({editMode: mode});
   }
   updateNotes() {
+    console.log('update');
     this.setState({displayedNotes: this.props.store.getState().notes.map(this.noteMapper)});
+  }
+  getNoteByCoordinates(pageX, pageY) {
+    const searchRectangle = {
+      left: pageX - this.sequencer.offsetLeft, 
+      top: pageY - this.sequencer.offsetTop, 
+      right: pageX - this.sequencer.offsetLeft, 
+      bottom: pageY - this.sequencer.offsetTop
+    };
+    const foundNoteIndexes = this.props.store.getState().notes.reduce((found, note, index) => {
+      const noteRectangle = getNoteRectangle(note);
+      if  (doRectanglesIntersect(noteRectangle, searchRectangle)) {
+        return found.concat([index]);
+      }
+      return found;
+    }, []);
+    if (foundNoteIndexes) {
+      return foundNoteIndexes[0];
+    }
   }
   getNoteByPosition(beat, tone) {
     const foundNoteIndexes = this.props.store.getState().notes.reduce((found, note, index) => {
@@ -119,43 +140,28 @@ class PianoRoll extends React.Component {
     }
   }
   getGridPosition(pageX, pageY) {
-    let beat = Math.floor((pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft)/noteWidth);
-    if (beat < 0) {
-      beat = 0;
-    }
-    let tone = keyCount - Math.floor((pageY - this.sequencer.offsetTop + this.sequencer.scrollTop)/noteHeight);
-    if (tone >= keyCount) {
-      tone = keyCount;
-    }
+    const beat = Math.floor((pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft)/noteWidth);
+    const tone = keyCount - Math.floor((pageY - this.sequencer.offsetTop + this.sequencer.scrollTop)/noteHeight);
     return {beat, tone};
   }
-  noteDragMouseUp(e) {
+  calculateDragDistance(pageX, pageY) {
+    const relativeX = pageX - this.state.drag.shiftX;
+    const relativeY = pageY - this.state.drag.shiftY;
+    const {beat, tone} = this.getGridPosition(relativeX, relativeY);
+    const beatDistance = beat - this.state.drag.startBeat;
+    const toneDistance = tone - this.state.drag.startTone;
+    return {beatDistance, toneDistance};
+  }
+  noteDragMouseUp({pageX, pageY}) {
     document.onmousemove = null;
     document.onmouseup = null;
-    const relativeX = e.pageX - this.state.drag.shiftX;
-    const relativeY = e.pageY - this.state.drag.shiftY;
-    const {beat, tone} = this.getGridPosition(relativeX, relativeY);
-    const beatDistance = beat - this.state.drag.startBeat;
-    const toneDistance = tone - this.state.drag.startTone;
-    if (beatDistance === 0 && toneDistance == 0) {
-      this.state.selectedNotes.map(i => document.getElementById('gridNote_' + i)).map((note, i) => {
-        note.style.left = (this.props.store.getState().notes[i].start + beatDistance) * noteWidth + 'px';
-        note.style.top = (keyCount - this.props.store.getState().notes[i].tone - toneDistance) * noteHeight + 'px';
-      });
-      this.setState({drag: defaultDrag, selectedNotes: []});      
-    } else {
-      this.setState({drag: defaultDrag, selectedNotes: []});      
-      this.props.store.dispatch(moveNotes(this.state.selectedNotes, beatDistance, toneDistance));  
-    }
+    const {beatDistance, toneDistance} = this.calculateDragDistance(pageX, pageY);
+    this.setState({drag: defaultDrag, selectedNotes: []});
+    this.props.store.dispatch(moveNotes(this.state.selectedNotes, beatDistance, toneDistance));  
     return false;
   }
-  noteDragMouseMove(e) {
-    const relativeX = e.pageX - this.state.drag.shiftX;
-    const relativeY = e.pageY - this.state.drag.shiftY;
-    const {beat, tone} = this.getGridPosition(relativeX, relativeY);
-    const beatDistance = beat - this.state.drag.startBeat;
-    const toneDistance = tone - this.state.drag.startTone;
-    console.log(beatDistance, toneDistance);
+  noteDragMouseMove({pageX, pageY}) {
+    const {beatDistance, toneDistance} = this.calculateDragDistance(pageX, pageY);
     this.state.selectedNotes.map(i => document.getElementById('gridNote_' + i)).map((note, i) => {
       note.style.left = (this.props.store.getState().notes[i].start + beatDistance) * noteWidth + 'px';
       note.style.top = (keyCount - this.props.store.getState().notes[i].tone - toneDistance) * noteHeight + 'px';
@@ -168,7 +174,7 @@ class PianoRoll extends React.Component {
     const mode = this.state.editMode;
     if (mode === editModes.draw) {
       const {beat, tone} = this.getGridPosition(pageX, pageY);
-      const noteUnderMouse = this.getNoteByPosition(beat, tone);
+      const noteUnderMouse = this.getNoteByCoordinates(pageX, pageY);
       if (noteUnderMouse >= 0) {
         const target = document.getElementById('gridNote_' + noteUnderMouse);
         const shiftX = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft - parseInt(target.style.left, 10);
@@ -219,8 +225,7 @@ class PianoRoll extends React.Component {
   onSequencerMouseUp({pageX, pageY}) {
     if (this.isClickOutOfSequencer(pageX, pageY)) {
       return false;
-    }    
-    const { beat, tone } = this.getGridPosition(pageX, pageY);
+    }
     const mode = this.state.editMode;
     if (mode === editModes.draw) {
       if (!this.state.drag.inProgress && this.state.drawNote.inProgress) {
@@ -229,8 +234,10 @@ class PianoRoll extends React.Component {
       }
     }
     if (mode === editModes.erase) {
-      const noteUnderMouse = this.getNoteByPosition(beat, tone);
-      this.props.store.dispatch(removeNotes([noteUnderMouse]));
+      const noteUnderMouse = this.getNoteByCoordinates(pageX, pageY);
+      if (noteUnderMouse >= 0) {
+        this.props.store.dispatch(removeNotes([noteUnderMouse]));
+      }
     }
     if (mode === editModes.select) {
       const newlySelectedNotes = this.props.store.getState().notes.reduce((acc, note, index) => {
@@ -288,6 +295,7 @@ class PianoRoll extends React.Component {
     return false;
   }
   render() {
+    console.log('render');
     return (
       <div>
       <div className="PianoRoll-toolbar">
