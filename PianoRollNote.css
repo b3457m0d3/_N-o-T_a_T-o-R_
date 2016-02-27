@@ -7,6 +7,10 @@
 }
 
 .PianoRollNote-selected {
+  border: 1px solid red;
+}
+
+.PianoRollNote-dragged {
   box-shadow: 5px 5px 20px 0px #000000;
   z-index: 10000;
 }
