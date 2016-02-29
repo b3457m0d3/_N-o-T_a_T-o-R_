@@ -1,8 +1,6 @@
 import React from 'react';
 import { createStore } from 'redux';
-import classNames from 'classnames';
 import PianoRoll from './PianoRoll.jsx';
-import { addNote } from './action-creators';
 
 const initialState = {
   notes: [
