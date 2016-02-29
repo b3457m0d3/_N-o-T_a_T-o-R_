@@ -148,7 +148,7 @@ class PianoRoll extends React.Component {
     document.onmouseup = null;
     const { beatDistance, toneDistance } = this.calculateDragDistance(pageX, pageY);
     this.props.store.dispatch(moveNotes(this.state.selectedNotes, beatDistance, toneDistance));
-    this.setState({drag: defaultDrag, selectedNotes: []});    
+    this.setState({drag: defaultDrag, selectedNotes: [] });    
     return false;
   }
   noteDragMouseMove({ pageX, pageY }) {
@@ -159,7 +159,6 @@ class PianoRoll extends React.Component {
       const newStart = currentNote.start + beatDistance;
       const newTone = currentNote.tone + toneDistance;
       const {left, top} = this.getNotePositionByGrid(newStart, newTone);
-      console.log(i, newStart, newTone, left, top);      
       noteElement.style.left = left;
       noteElement.style.top = top;
     });
@@ -176,7 +175,6 @@ class PianoRoll extends React.Component {
         const target = document.getElementById('gridNote_' + noteUnderMouse);
         const shiftX = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft - parseInt(target.style.left, 10);
         const shiftY = pageY - this.sequencer.offsetTop + this.sequencer.scrollTop - parseInt(target.style.top, 10);
-        console.log('shifts', shiftX, shiftY);
         let newSelection = this.state.selectedNotes;        
         if (newSelection.indexOf(noteUnderMouse) === -1) {
           newSelection = [noteUnderMouse];
@@ -234,7 +232,12 @@ class PianoRoll extends React.Component {
     if (mode === editModes.erase) {
       const noteUnderMouse = this.getNoteByCoordinates(pageX, pageY);
       if (noteUnderMouse >= 0) {
-        this.props.store.dispatch(removeNotes([noteUnderMouse]));
+        let newSelection = this.state.selectedNotes;        
+        if (newSelection.indexOf(noteUnderMouse) === -1) {
+          newSelection = [noteUnderMouse];
+        }
+        this.setState({selectedNotes: []});
+        this.props.store.dispatch(removeNotes(newSelection));
       }
     }
     if (mode === editModes.select) {
