@@ -1,4 +1,4 @@
-@import './node_modules/bootstrap/dist/css/bootstrap.css';
+@import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
 div {
   display: block;
@@ -52,7 +52,7 @@ div {
 .PianoRoll-lane {
   width: 100%;
   height: 16px;
-  background-image: url(images/sequencer1.gif);
+  background-image: url(../images/sequencer1.gif);
 }
 
 .PianoRoll-toolbar {

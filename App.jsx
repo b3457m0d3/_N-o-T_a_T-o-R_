@@ -1,66 +1,19 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
-import PianoRoll from './PianoRoll.jsx';
+import { Provider } from 'react-redux';
 
-const initialState = {
-  notes: [
-  ]
-};
+import PianoRoll from './components/PianoRoll.jsx';
+import reducer from './reducers';
 
-const actionProcessors = {
-  'ADD_NOTE': (state, {tone, start, duration}) => { 
-    return {
-      ...state, 
-      notes: state.notes.concat([{tone, start, duration }]) 
-    }; 
-  },
-  'REMOVE_NOTES': (state, {ids}) => { 
-    return { 
-      ...state, 
-      notes: state.notes.filter((note, index) => ids.indexOf(index) === -1)
-    }; 
-  },
-  'MOVE_NOTES' : (state, {ids, beats, tones}) => {
-    return { 
-      ...state, 
-      notes: state.notes.map((note, index) => {
-        if (ids.indexOf(index) === -1) {
-          return note;
-        }
-        let newStart = note.start + beats;
-        if (newStart < 0) {
-          newStart = 0;
-        }
-        let newTone = note.tone + tones;
-        if (newTone < 0) {
-          newTone = 0;
-        }
-        return { 
-          ...note, 
-          tone: newTone, 
-          start: newStart 
-        };
-      })
-    };
-  }
-};
+const store = createStore(reducer);
 
-function stateReducer(state = initialState, action) {
-  console.log(action);
-  if (!actionProcessors[action.type]) {
-    return state;
-  }
-  return actionProcessors[action.type](state, action);
+function App() {
+  return (
+    <Provider store={store}>
+      <PianoRoll width='600px' height='300px'/>
+    </Provider>
+  );
 }
 
-class App extends React.Component {
-  constructor() {
-    super();
-    this.store = createStore(stateReducer);
-  }
-  render() {
-    return (<PianoRoll store={this.store} width='600px' height='300px'/>)
-  }
-}
-
-export default App;
+ReactDOM.render(<App />, document.getElementById('app'));
