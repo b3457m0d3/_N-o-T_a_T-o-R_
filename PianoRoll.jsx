@@ -148,20 +148,20 @@ class PianoRoll extends React.Component {
     document.onmouseup = null;
     const { beatDistance, toneDistance } = this.calculateDragDistance(pageX, pageY);
     this.props.store.dispatch(moveNotes(this.state.selectedNotes, beatDistance, toneDistance));
-    this.setState({drag: defaultDrag, selectedNotes: [] });    
+    this.setState({drag: defaultDrag });    
     return false;
   }
   noteDragMouseMove({ pageX, pageY }) {
     const { beatDistance, toneDistance } = this.calculateDragDistance(pageX, pageY);
-    this.state.selectedNotes.map((i) => { 
-      const noteElement = document.getElementById('gridNote_' + i);
-      const currentNote = this.props.store.getState().notes[i];
+    const newDisplayedNotes = this.props.store.getState().notes.map((currentNote, i) => { 
+      if (this.state.selectedNotes.indexOf(i) === -1) {
+        return this.noteMapper(currentNote, i);
+      }
       const newStart = currentNote.start + beatDistance;
       const newTone = currentNote.tone + toneDistance;
-      const {left, top} = this.getNotePositionByGrid(newStart, newTone);
-      noteElement.style.left = left;
-      noteElement.style.top = top;
+      return this.noteMapper({start: newStart, tone: newTone, duration: currentNote.duration }, i);
     });
+    this.setState({ displayedNotes: newDisplayedNotes });
   }
   onSequencerMouseDown({pageX, pageY}) {
     if (this.isClickOutOfSequencer(pageX, pageY)) {
@@ -172,9 +172,9 @@ class PianoRoll extends React.Component {
       const {beat, tone} = this.getGridPosition(pageX, pageY);
       const noteUnderMouse = this.getNoteByCoordinates(pageX, pageY);
       if (noteUnderMouse >= 0) {
-        const target = document.getElementById('gridNote_' + noteUnderMouse);
-        const shiftX = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft - parseInt(target.style.left, 10);
-        const shiftY = pageY - this.sequencer.offsetTop + this.sequencer.scrollTop - parseInt(target.style.top, 10);
+        const target = this.state.displayedNotes[noteUnderMouse];
+        const shiftX = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft - parseInt(target.props.left, 10);
+        const shiftY = pageY - this.sequencer.offsetTop + this.sequencer.scrollTop - parseInt(target.props.top, 10);
         let newSelection = this.state.selectedNotes;        
         if (newSelection.indexOf(noteUnderMouse) === -1) {
           newSelection = [noteUnderMouse];
