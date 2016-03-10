@@ -1,16 +1,16 @@
-.PianoRollNote-note {
-  height: 16px;
+.SequencerItem-note {
   background-color: pink;
+  box-sizing: border-box;
   border: 1px solid white;
   position: absolute;
   z-index: 5;
 }
 
-.PianoRollNote-selected {
+.SequencerItem-selected {
   border: 1px solid red;
 }
 
-.PianoRollNote-dragged {
+.SequencerItem-dragged {
   box-shadow: 5px 5px 20px 0px #000000;
   z-index: 10000;
 }

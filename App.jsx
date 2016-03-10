@@ -3,15 +3,15 @@ import ReactDOM from 'react-dom';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 
-import PianoRoll from './components/PianoRoll.jsx';
 import reducer from './reducers';
+import PianoRoll from './components/PianoRoll.jsx';
 
 const store = createStore(reducer);
 
 function App() {
   return (
     <Provider store={store}>
-      <PianoRoll width='600px' height='300px'/>
+      <PianoRoll/>
     </Provider>
   );
 }

@@ -1,41 +1,5 @@
-@import '../node_modules/bootstrap/dist/css/bootstrap.css';
-
-div {
-  display: block;
-}
-
-.PianoRoll-keylist-outer {
-  float: left;
-  overflow: hidden;
-  position: relative;
-  width: 50px;
-  height: 100%;
-}
-
-.PianoRoll-keylist-inner {
-  overflow: hidden;
-  width: 50px;
-  position: absolute;
-  z-index: 10;
-}
-
-.PianoRoll-lane-outer {
-  height: 100%;
-  overflow: scroll;
-  margin-left: 50px;
-  z-index: 10000;
-}
-
-.PianoRoll-lane-inner {
-  width: 2400px;
-  height: 960px;
-  overflow: hidden;
-  position: relative;
-}
-
 .PianoRoll-key {
   font-size: 8pt;
-  height: 16px;
   border: 1px inset black;
 }
 
@@ -51,10 +15,5 @@ div {
 
 .PianoRoll-lane {
   width: 100%;
-  height: 16px;
-  background-image: url(../images/sequencer1.gif);
-}
-
-.PianoRoll-toolbar {
-  margin: 5px;
+  background-image: url(../images/grid.png);
 }

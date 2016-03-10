@@ -1,7 +1,7 @@
 import React from 'react';
-import './PianoRollSelection.css';
+import './SequencerSelection.css';
 
-class PianoRollSelection extends React.Component {
+class SequencerSelection extends React.Component {
   render() {
     return <div style={{
       left: this.props.rect.left, 
@@ -9,8 +9,8 @@ class PianoRollSelection extends React.Component {
       width: this.props.rect.right - this.props.rect.left, 
       height: this.props.rect.bottom - this.props.rect.top,
       display: this.props.rect.active ? 'block' : 'none'
-    }} className="PianoRollSelection" ></div>;
+    }} className="SequencerSelection" ></div>;
   }
 }
 
-export default PianoRollSelection;
+export default SequencerSelection;

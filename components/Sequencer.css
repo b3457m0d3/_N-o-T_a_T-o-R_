@@ -1,0 +1,36 @@
+@import '../node_modules/bootstrap/dist/css/bootstrap.css';
+
+div {
+  display: block;
+}
+
+.Sequencer-tracklist-outer {
+  float: left;
+  overflow: hidden;
+  position: relative;
+  width: 50px;
+  height: 100%;
+}
+
+.Sequencer-tracklist-inner {
+  overflow: hidden;
+  width: 50px;
+  position: absolute;
+  z-index: 10;
+}
+
+.Sequencer-lane-outer {
+  height: 100%;
+  overflow: scroll;
+  margin-left: 50px;
+  z-index: 10000;
+}
+
+.Sequencer-lane-inner {
+  overflow: hidden;
+  position: relative;
+}
+
+.Sequencer-toolbar {
+  margin: 5px;
+}
