@@ -241,6 +241,7 @@ class Sequencer extends React.Component {
           left={note.start*this.props.beatWidth} 
           top={(this.props.trackCount - note.tone) * this.props.trackHeight}
           width={note.duration * this.props.beatWidth}
+          height={this.props.trackHeight}
           selected={newlySelectedItems.indexOf(i) !== -1}
           />;
       })});
