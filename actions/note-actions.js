@@ -28,10 +28,9 @@ export function moveNotes(ids, beats, tones) {
   };
 }
 
-/*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
-
 export function clearNotes() {
   return {
-    type: noteActionNames.CLEAR_NOTES
+    type: noteActionNames.CLEAR_NOTES,
+    null
   };
 }

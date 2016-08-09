@@ -286,7 +286,7 @@ class Sequencer extends React.Component {
   }
 /*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
   onClearNotes(){
-    this.context.store.dispatch(clearNotes(this.state,{}));
+    this.context.store.dispatch(clearNotes());
   }
                   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
 
