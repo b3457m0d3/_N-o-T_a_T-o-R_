@@ -1,4 +1,4 @@
-import { noteActionNames } from './note-action-names';
+import { noteActionNames } from '../constants/note-action-names';
 
 
 export function addNote(tone, start, duration) {
@@ -25,5 +25,13 @@ export function moveNotes(ids, beats, tones) {
     ids,
     beats,
     tones
+  };
+}
+
+/*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
+
+export function clearNotes() {
+  return {
+    type: noteActionNames.CLEAR_NOTES
   };
 }

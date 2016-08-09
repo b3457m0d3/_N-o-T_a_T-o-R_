@@ -10,7 +10,7 @@ import SequencerGridDropdown from './SequencerGridDropdown.jsx';
 
 import './styles/Sequencer.css';
 
-const { addNote, removeNotes, moveNotes } = actions;
+const { addNote, removeNotes, moveNotes, clearNotes } = actions;
 
 const editModes = {
   draw: 'draw',
@@ -283,6 +283,12 @@ class Sequencer extends React.Component {
     }
     return false;
   }
+/*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
+  clearAll(){
+    this.context.store.dispatch(clearNotes());
+  }
+                  /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
+
   render() {
     return (
       <div>
@@ -292,6 +298,7 @@ class Sequencer extends React.Component {
         <ButtonGroup>
           <Button active={this.state.editMode === editModes.draw} onClick={() => this.setEditMode(editModes.draw) }><Glyphicon glyph="pencil" /></Button>
           <Button active={this.state.editMode === editModes.erase} onClick={() => this.setEditMode(editModes.erase) }><Glyphicon glyph="remove" /></Button>
+          <Button onClick={() => this.clearAll() }><Glyphicon glyph="remove" />(ALL)</Button>
           <Button active={this.state.editMode === editModes.select} onClick={() => this.setEditMode(editModes.select) }><Glyphicon glyph="unchecked" /></Button>
         </ButtonGroup>
       </ButtonToolbar>
