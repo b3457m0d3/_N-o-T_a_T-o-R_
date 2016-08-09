@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "NODE_ENV=production webpack -p --config webpack.production.config.js --progress --profile --colors",
-    "dev": "webpack-dev-server --progress --profile --colors --hot"
+    "start": "webpack-dev-server --progress --profile --colors --hot"
   },
   "author": "b3457m0d3",
   "license": "MIT",
@@ -18,7 +18,7 @@
     "react-dom": "^0.14.7",
     "react-redux": "^4.4.0",
     "redux": "^3.3.1",
-    "immutable": "^3.8.1",
+    "immutable": "^3.8.1"
   },
   "devDependencies": {
     "babel-core": "^6.5.2",

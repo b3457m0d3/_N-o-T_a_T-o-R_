@@ -1,5 +1,5 @@
 import React from 'react';
-import { noteNames } from './note-names';
+import { noteNames } from '../constants/note-names';
 import classNames from 'classnames';
 import Sequencer from './Sequencer.jsx';
 import './styles/PianoRoll.css';
