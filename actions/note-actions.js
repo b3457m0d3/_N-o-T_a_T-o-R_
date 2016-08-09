@@ -1,12 +1,12 @@
-import constants from '../constants';
-const { noteActionNames } = constants;
+import { noteActionNames } from './note-action-names';
+
 
 export function addNote(tone, start, duration) {
   return {
     type: noteActionNames.ADD_NOTE,
     note: {
       tone,
-      start, 
+      start,
       duration
     }
   };

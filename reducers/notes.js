@@ -1,9 +1,7 @@
-import constants from '../constants';
+import { noteActionNames } from './note-action-names';
 import { createReducer } from '../utils';
 
-const { noteActionNames } = constants;
-
-function addNote(state, { note }) { 
+function addNote(state, { note }) {
   return state.concat([note]);
 }
 
@@ -24,10 +22,10 @@ function moveNotes(state, {ids, beats, tones}) {
     if (newTone < 0) {
       newTone = 0;
     }
-    return { 
-      ...note, 
-      tone: newTone, 
-      start: newStart 
+    return {
+      ...note,
+      tone: newTone,
+      start: newStart
     };
   });
 }

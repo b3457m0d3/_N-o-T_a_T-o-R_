@@ -1,10 +1,10 @@
 import React from 'react';
-
+import { noteNames } from './note-names';
 import classNames from 'classnames';
 import Sequencer from './Sequencer.jsx';
 import './PianoRoll.css';
 
-const noteNames = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+
 function getNoteFromIndex(index) {
   const octave = Math.floor(index/12);
   const name = noteNames[index % 12];
@@ -28,12 +28,12 @@ function getTrackEntry(i) {
 
 class PianoRoll extends React.Component {
   render() {
-    return <Sequencer 
-      width='600px' 
-      height='300px' 
-      totalBeatCount={64} 
-      trackCount={60} 
-      beatWidth={24} 
+    return <Sequencer
+      width='600px'
+      height='300px'
+      totalBeatCount={64}
+      trackCount={60}
+      beatWidth={24}
       trackHeight={16}
       getTrackEntry={getTrackEntry}
       getTrackLane={getTrackLane}/>;
