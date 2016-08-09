@@ -2,7 +2,7 @@ import React from 'react';
 import { noteNames } from './note-names';
 import classNames from 'classnames';
 import Sequencer from './Sequencer.jsx';
-import './PianoRoll.css';
+import './styles/PianoRoll.css';
 
 
 function getNoteFromIndex(index) {
