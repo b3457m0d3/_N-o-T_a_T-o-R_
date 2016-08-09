@@ -33,7 +33,9 @@ function moveNotes(state, {ids, beats, tones}) {
 /*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
 
 function clearNotes(state,{}){
-  return [];
+  return state.map((note, index) => {
+    return {};
+  });
 }
 
                   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/

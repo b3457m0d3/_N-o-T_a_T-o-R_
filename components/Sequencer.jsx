@@ -27,6 +27,7 @@ class Sequencer extends React.Component {
   constructor() {
     super();
     this.updateNotes = this.updateNotes.bind(this);
+    this.onClearNotes = this.onClearNotes.bind(this);
     this.getGridPosition = this.getGridPosition.bind(this);
     this.noteDragMouseUp = this.noteDragMouseUp.bind(this);
     this.noteDragMouseMove= this.noteDragMouseMove.bind(this);
@@ -284,8 +285,8 @@ class Sequencer extends React.Component {
     return false;
   }
 /*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
-  clearAll(){
-    this.context.store.dispatch(clearNotes());
+  onClearNotes(){
+    this.context.store.dispatch(clearNotes(this.state,{}));
   }
                   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
 
@@ -298,7 +299,7 @@ class Sequencer extends React.Component {
         <ButtonGroup>
           <Button active={this.state.editMode === editModes.draw} onClick={() => this.setEditMode(editModes.draw) }><Glyphicon glyph="pencil" /></Button>
           <Button active={this.state.editMode === editModes.erase} onClick={() => this.setEditMode(editModes.erase) }><Glyphicon glyph="remove" /></Button>
-          <Button onClick={() => this.clearAll() }><Glyphicon glyph="remove" />(ALL)</Button>
+          <Button onClick={() => this.onClearNotes() }><Glyphicon glyph="remove" />(ALL)</Button>
           <Button active={this.state.editMode === editModes.select} onClick={() => this.setEditMode(editModes.select) }><Glyphicon glyph="unchecked" /></Button>
         </ButtonGroup>
       </ButtonToolbar>
