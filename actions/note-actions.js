@@ -1,6 +1,5 @@
 import { noteActionNames } from '../constants/note-action-names';
 
-
 export function addNote(tone, start, duration) {
   return {
     type: noteActionNames.ADD_NOTE,

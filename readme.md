@@ -1,7 +1,8 @@
-# Full Stack JS Dev
+#☢ TriValent 
 ##using: 
 - React
 - Redux
+- Redux Dev Tools
 - Immutable
 - Webpack
 - Babel
@@ -13,20 +14,22 @@
 ## Installation
 
 ```sh
-# install dependencies
-$ npm install
-# start dev server
-$ npm start
+# install dependencies & start dev server
+$ npm i && npm start
 ```
 
-Open your browser to [0.0.0.0:8080](http://localhost:8080).
+Then open your browser to [localhost:8080](http://localhost:8080).
+
+##What is TriValent?
+TriValent is a modular javascript application architecture built on React, Redux & Webpack.  
+
 
 
 ## License
 
-MIT © react-photonkit
+MIT © GrayMatterForge
 
 
 
 [screenshot]: assets/screenshot.png
-http://localhost:8080/
+[lh]: http://localhost:8080/'

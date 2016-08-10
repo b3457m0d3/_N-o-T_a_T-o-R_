@@ -1,5 +1,7 @@
-import { noteActionNames } from '../constants/note-action-names';
+import constants from '../constants';
 import { createReducer } from '../utils';
+
+const { noteActionNames } = constants;
 
 function addNote(state, { note }) {
   return state.concat([note]);
@@ -30,19 +32,10 @@ function moveNotes(state, {ids, beats, tones}) {
   });
 }
 
-/*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
-
-function clearNotes(state,{}){
-  return {};
-}
-
-                  /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
-
 const actionProcessors = {
   [noteActionNames.ADD_NOTE]: addNote,
   [noteActionNames.REMOVE_NOTES]: removeNotes,
-  [noteActionNames.MOVE_NOTES] : moveNotes,
-  [noteActionNames.CLEAR_NOTES] : clearNotes //added by b3457m0d3
+  [noteActionNames.MOVE_NOTES] : moveNotes
 };
 
 const initialState = [];
