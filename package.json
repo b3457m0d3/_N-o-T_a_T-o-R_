@@ -8,6 +8,7 @@
     "build": "NODE_ENV=production webpack -p --config webpack.production.config.js --progress --profile --colors",
     "start": "webpack-dev-server --progress --profile --colors --hot"
   },
+  "repository": "https://github.com/b3457m0d3/react-piano-roll",
   "author": "b3457m0d3",
   "license": "MIT",
   "dependencies": {

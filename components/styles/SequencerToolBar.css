@@ -1,0 +1,8 @@
+@import '../../node_modules/bootstrap/dist/css/bootstrap.css';
+
+div {
+  display: block;
+}
+.Sequencer-toolbar {
+  margin: 5px;
+}
