@@ -21,7 +21,7 @@ const enHanceCreateStore = compose(
     //applyMiddleware(...),
     reduxReset()  // Will use 'RESET' as default action.type to trigger reset
   )(createStore);
-const store = enHanceCreateStore(reducer);
+const store = enHanceCreateStore(reducer,window.devToolsExtension && window.devToolsExtension());
 
 function App() {
   return (
