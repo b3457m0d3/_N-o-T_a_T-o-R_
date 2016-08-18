@@ -5,26 +5,7 @@ import Sequencer from './Sequencer.jsx';
 import './styles/PianoRoll.css';
 
 
-function getNoteFromIndex(index) {
-  const octave = Math.floor(index/12);
-  const name = noteNames[index % 12];
-  const isBlack = name.indexOf('#') !== -1;
-  return { octave, name, isBlack };
-}
 
-function getTrackLane(i) {
-  return <div key={i} style={{height: 16}} className="PianoRoll-lane"></div>;
-}
-
-function getTrackEntry(i) {
-  const trackEntry = getNoteFromIndex(i);
-  const trackEntryClasses = {
-    'PianoRoll-key': true,
-    'PianoRoll-key-black' : trackEntry.isBlack,
-    'PianoRoll-key-white' : !trackEntry.isBlack
-  };
-  return <div key={i} style={{height: 16}} className={classNames(trackEntryClasses)}>{trackEntry.name}{trackEntry.octave}</div>;
-}
 
 class PianoRoll extends React.Component {
   render() {
