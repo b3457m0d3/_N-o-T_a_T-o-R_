@@ -27,6 +27,7 @@ function App() {
   return (
     <Provider store={store}>
       <PianoRoll/>
+      <StateConsole/>
     </Provider>
   );
 }
