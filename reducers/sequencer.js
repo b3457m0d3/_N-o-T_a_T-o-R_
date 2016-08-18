@@ -1,4 +1,5 @@
-import undoable, { distinctState } from 'redux-undo'
+import constants from '../constants';
+import { createReducer } from '../utils';
 
 const { noteActionNames } = constants;
 
