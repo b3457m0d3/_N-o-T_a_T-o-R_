@@ -1,22 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
+import { createStore, compose } from 'redux';
 import reduxReset from 'redux-reset';
 import { Provider } from 'react-redux';
+import { undoable } from './reducers/undoable';
 
 import reducer from './reducers';
 import PianoRoll from './components/PianoRoll.jsx';
-function compose(...fnArgs) {
-  const [first, ...funcs] = fnArgs.reverse();
-  return function(...args) {
-    return funcs.reduce((res, fn) => fn(res), first(...args));
-  };
-}
+
+const undoRedo = undoable(reducer);
 const enHanceCreateStore = compose(
-    //applyMiddleware(...),
     reduxReset()  // Will use 'RESET' as default action.type to trigger reset
   )(createStore);
-const store = enHanceCreateStore(reducer);
+const store = enHanceCreateStore(undoRedo);
 
 function App() {
   return (

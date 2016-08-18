@@ -27,7 +27,6 @@ class Sequencer extends React.Component {
   constructor() {
     super();
     this.updateNotes = this.updateNotes.bind(this);
-    this.onClearNotes = this.onClearNotes.bind(this);
     this.getGridPosition = this.getGridPosition.bind(this);
     this.noteDragMouseUp = this.noteDragMouseUp.bind(this);
     this.noteDragMouseMove= this.noteDragMouseMove.bind(this);
@@ -56,7 +55,7 @@ class Sequencer extends React.Component {
   componentDidMount() {
     const { store } = this.context;
     store.subscribe(this.updateNotes);
-    this.getItems = () => store.getState().notes;
+    this.getNotes = () => store.getState().present;
     this.unsubscribe = () => store.unsubscribe();
 
     this.sequencer.onscroll = () => {
@@ -95,7 +94,7 @@ class Sequencer extends React.Component {
     this.setState({ editMode: mode });
   }
   updateNotes() {
-    this.setState({ displayedItems: this.getItems().map(this.noteMapper) });
+    this.setState({ displayedItems: this.getNotes().map(this.noteMapper) });
   }
   getNoteByCoordinates(pageX, pageY) {
     const searchRectangle = {
@@ -104,7 +103,7 @@ class Sequencer extends React.Component {
       top:    pageY - this.sequencer.offsetTop + this.sequencer.scrollTop,
       bottom: pageY - this.sequencer.offsetTop + this.sequencer.scrollTop
     };
-    const foundNoteIndexes = this.getItems().reduce((found, note, index) => {
+    const foundNoteIndexes = this.getNotes().reduce((found, note, index) => {
       const noteRectangle = this.getItemRectangle(note);
       if  (doRectanglesIntersect(noteRectangle, searchRectangle)) {
         return found.concat([index]);
@@ -141,7 +140,7 @@ class Sequencer extends React.Component {
   }
   noteDragMouseMove({ pageX, pageY }) {
     const { beatDistance, toneDistance } = this.calculateDragDistance(pageX, pageY);
-    const newDisplayedItems = this.getItems().map((currentNote, i) => {
+    const newDisplayedItems = this.getNotes().map((currentNote, i) => {
       if (this.state.selectedItems.indexOf(i) === -1) {
         return this.noteMapper(currentNote, i);
       }
@@ -230,14 +229,14 @@ class Sequencer extends React.Component {
       }
     }
     if (mode === editModes.select) {
-      const newlySelectedItems = this.getItems().reduce((acc, note, index) => {
+      const newlySelectedItems = this.getNotes().reduce((acc, note, index) => {
         if (doRectanglesIntersect(this.getItemRectangle(note), this.state.selection)) {
           return acc.concat(index);
         }
         return acc;
       }, []);
       this.setState({selection: defaultSelection, selectedItems: newlySelectedItems});
-      this.setState({displayedItems: this.getItems().map((note, i) => {
+      this.setState({displayedItems: this.getNotes().map((note, i) => {
         return <SequencerItem key={i}
           left={note.start*this.props.beatWidth}
           top={(this.props.trackCount - note.tone) * this.props.trackHeight}
@@ -285,8 +284,8 @@ class Sequencer extends React.Component {
     return false;
   }
 /*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
-  onClearNotes(){
-    this.context.store.dispatch({ type: 'RESET' });
+  clearAll(){
+    this.context.store.dispatch(clearNotes());
   }
                   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
 
@@ -299,7 +298,7 @@ class Sequencer extends React.Component {
         <ButtonGroup>
           <Button active={this.state.editMode === editModes.draw} onClick={() => this.setEditMode(editModes.draw) }><Glyphicon glyph="pencil" /></Button>
           <Button active={this.state.editMode === editModes.erase} onClick={() => this.setEditMode(editModes.erase) }><Glyphicon glyph="remove" /></Button>
-          <Button onClick={() => this.onClearNotes() }><Glyphicon glyph="remove" />(ALL)</Button>
+          <Button onClick={() => this.clearAll() }><Glyphicon glyph="remove" />(ALL)</Button>
           <Button active={this.state.editMode === editModes.select} onClick={() => this.setEditMode(editModes.select) }><Glyphicon glyph="unchecked" /></Button>
         </ButtonGroup>
       </ButtonToolbar>

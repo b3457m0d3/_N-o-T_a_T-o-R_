@@ -1,5 +1,4 @@
 import React from 'react'
-import { ActionCreators as UndoActionCreators } from 'redux-undo'
 import { Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 
@@ -21,8 +20,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onUndo: () => dispatch(UndoActionCreators.undo()),
-    onRedo: () => dispatch(UndoActionCreators.redo())
+    onUndo: () => dispatch({type:"UNDO"}),
+    onRedo: () => dispatch({type:"REDO"})
   }
 }
 
