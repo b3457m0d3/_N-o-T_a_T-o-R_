@@ -40,6 +40,7 @@ class SequencerToolBar extends React.Component {
               <Button active={this.state.editMode === defaults.editModes.erase} onClick={() => this.setEditMode(defaults.editModes.erase) }><Glyphicon glyph="remove" /></Button>
               <Button onClick={() => this.onClearNotes() }><Glyphicon glyph="remove" />(ALL)</Button>
               <Button onClick={() => this.onUndo() }><Glyphicon glyph="backward" /></Button>
+              <Button onClick={() => this.selectEveryOther() }><Glyphicon glyph="backward" /></Button>
               <Button active={this.state.editMode === defaults.editModes.select} onClick={() => this.setEditMode(defaults.editModes.select) }><Glyphicon glyph="unchecked" /></Button>
             </ButtonGroup>
           </ButtonToolbar>

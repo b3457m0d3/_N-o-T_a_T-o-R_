@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import notes from './notes';
+import sequencer from './sequencer';
 
 export default combineReducers({
-  notes
+  sequencer
 });
