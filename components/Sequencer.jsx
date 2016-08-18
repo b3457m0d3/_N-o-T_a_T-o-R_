@@ -3,7 +3,8 @@ import { Button, ButtonGroup, Glyphicon, ButtonToolbar } from 'react-bootstrap';
 
 import { doRectanglesIntersect } from '../utils';
 import actions from '../actions';
-
+import actionNames from '../constants/action-names.js';
+import config from '../constants/config.js';
 import SequencerItem from './SequencerItem.jsx';
 import SequencerSelection from './SequencerSelection.jsx';
 import SequencerGridDropdown from './SequencerGridDropdown.jsx';
@@ -12,16 +13,7 @@ import './styles/Sequencer.css';
 
 const { addNote, removeNotes, moveNotes, clearNotes } = actions;
 
-const editModes = {
-  draw: 'draw',
-  select: 'select',
-  erase: 'erase',
-};
-const defaultDrawNote = { inProgress: false, duration: 1, tone: 0, start: 0 };
-const defaultDrag = { inProgress: false, startBeat: 0, startTone: 0, shiftX: 0, shiftY: 0 };
-const defaultSelection = { active: false, startX: 0, startY: 0, top: 0, left: 0, right: 0, bottom: 0 };
 
-const defaultGridSize = 2; //in 32nd notes
 
 class Sequencer extends React.Component {
   constructor() {
@@ -37,14 +29,17 @@ class Sequencer extends React.Component {
     this.getItemRectangle = this.getItemRectangle.bind(this);
   }
   componentWillMount() {
-    this.setState({
-      drag: defaultDrag,
-      displayedItems: [],
-      editMode: editModes.draw,
-      drawItem: defaultDrawNote,
-      selectedItems: [],
-      selection: defaultSelection,
-      gridSize: defaultGridSize,
+    this.context.dispatch({
+      type: actionNames.SEQUENCER_SETUP,
+      {
+        drag: config.defaultDrag,
+        displayedItems: [],
+        editMode: config.editModes.draw,
+        drawItem: config.defaultDrawNote,
+        selectedItems: [],
+        selection: config.defaultSelection,
+        gridSize: config.defaultGridSize
+      }
     });
     const trackCountArray = Array.apply(null, {length: this.props.trackCount}).map(Number.call, Number).reverse();
     this.trackLanes = trackCountArray.map(this.props.getTrackLane);
@@ -66,9 +61,7 @@ class Sequencer extends React.Component {
     this.sequencer.ondragstart = () => false;
     this.updateNotes();
   }
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
+  componentWillUnmount() { this.unsubscribe(); }
   getItemRectangle(note) {
     return {
       left: note.start * this.props.beatWidth,
@@ -285,9 +278,7 @@ class Sequencer extends React.Component {
     return false;
   }
 /*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
-  onClearNotes(){
-    this.context.store.dispatch({ type: 'RESET' });
-  }
+  onClearNotes(){ this.context.store.dispatch({ type: 'RESET' }); }
                   /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
 
   render() {

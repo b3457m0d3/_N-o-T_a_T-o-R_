@@ -1,9 +1,13 @@
 import constants from '../constants';
 import { createReducer } from '../utils';
 
-const { noteActionNames } = constants;
+const { actionNames } = constants;
 
-function addNote(state, { note }) {
+function setupSequencer(state, {config}){
+  return Object.assign({},state,config);
+}
+
+function addNote(state, {note}) {
   return state.concat([note]);
 }
 
@@ -13,17 +17,11 @@ function removeNotes(state, {ids}) {
 
 function moveNotes(state, {ids, beats, tones}) {
   return state.map((note, index) => {
-    if (ids.indexOf(index) === -1) {
-      return note;
-    }
+    if (ids.indexOf(index) === -1) return note;
     let newStart = note.start + beats;
-    if (newStart < 0) {
-      newStart = 0;
-    }
+    if (newStart < 0) newStart = 0;
     let newTone = note.tone + tones;
-    if (newTone < 0) {
-      newTone = 0;
-    }
+    if (newTone < 0) newTone = 0;
     return {
       ...note,
       tone: newTone,
@@ -33,9 +31,10 @@ function moveNotes(state, {ids, beats, tones}) {
 }
 
 const actionProcessors = {
-  [noteActionNames.ADD_NOTE]: addNote,
-  [noteActionNames.REMOVE_NOTES]: removeNotes,
-  [noteActionNames.MOVE_NOTES] : moveNotes
+  [actionNames.SETUP_SEQUENCER] : setupSequencer,
+  [actionNames.ADD_NOTE]: addNote,
+  [actionNames.REMOVE_NOTES]: removeNotes,
+  [actionNames.MOVE_NOTES] : moveNotes
 };
 
 const initialState = [];
