@@ -6,6 +6,8 @@ import { Provider } from 'react-redux';
 
 import reducer from './reducers';
 import PianoRoll from './components/PianoRoll.jsx';
+import StateConsole from './components/StateConsole.jsx';
+
 var compose = function () {
   var fns = arguments;
 

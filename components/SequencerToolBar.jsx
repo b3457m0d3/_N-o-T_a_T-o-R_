@@ -19,6 +19,7 @@ class SequencerToolBar extends React.Component {
   componentDidMount() {
     const { store } = this.context;
     this.getItems = () => store.getState().notes;
+    console.log(this.getItems);
   //  store.subscribe(this.setEditMode);
   //  this.unsubscribe = () => store.unsubscribe();
   }
