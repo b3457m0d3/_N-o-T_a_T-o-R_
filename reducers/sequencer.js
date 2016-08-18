@@ -4,7 +4,11 @@ import { createReducer } from '../utils';
 const { actionNames } = constants;
 
 function setupSequencer(state, {config}){
-  return Object.assign({},state,config);
+  return Object.assign({},state,{sequencer:config});
+}
+
+function editMode(state, {newMode}){
+  
 }
 
 function addNote(state, {note}) {

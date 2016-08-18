@@ -29,7 +29,8 @@ class Sequencer extends React.Component {
     this.getItemRectangle = this.getItemRectangle.bind(this);
   }
   componentWillMount() {
-    this.context.dispatch({
+    const { store } = this.context;
+    store.dispatch({
       type: actionNames.SEQUENCER_SETUP,
       {
         drag: config.defaultDrag,

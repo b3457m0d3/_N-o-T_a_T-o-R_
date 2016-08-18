@@ -1,0 +1,22 @@
+{
+  UI: {
+    pianoRoll: {
+      past:[],
+      present: {
+        
+      },
+      future:[]
+        drag: defaultDrag,
+        displayedItems: [],
+        editMode: editModes.draw,
+        drawItem: defaultDrawNote,
+        selectedItems: [],
+        selection: defaultSelection,
+        gridSize: defaultGridSize
+      },
+      notes: {
+
+      }
+    }
+  }
+}
