@@ -3,7 +3,9 @@ import { Button, ButtonGroup, Glyphicon, ButtonToolbar } from 'react-bootstrap';
 
 import { doRectanglesIntersect } from '../utils';
 import actions from '../actions';
-
+import classNames from 'classnames';
+import { noteNames } from '../constants/note-names'
+import config from '../constants/config.js';
 import SequencerItem from './SequencerItem.jsx';
 import SequencerSelection from './SequencerSelection.jsx';
 import SequencerGridDropdown from './SequencerGridDropdown.jsx';
@@ -12,41 +14,10 @@ import './styles/Sequencer.css';
 
 const { addNote, removeNotes, moveNotes, clearNotes } = actions;
 
-function getNoteFromIndex(index) {
-  const octave = Math.floor(index/12);
-  const name = noteNames[index % 12];
-  const isBlack = name.indexOf('#') !== -1;
-  return { octave, name, isBlack };
-}
-
-function getTrackLane(i) {
-  return <div key={i} style={{height: 16}} className="PianoRoll-lane"></div>;
-}
-
-function getTrackEntry(i) {
-  const trackEntry = getNoteFromIndex(i);
-  const trackEntryClasses = {
-    'PianoRoll-key': true,
-    'PianoRoll-key-black' : trackEntry.isBlack,
-    'PianoRoll-key-white' : !trackEntry.isBlack
-  };
-  return <div key={i} style={{height: 16}} className={classNames(trackEntryClasses)}>{trackEntry.name}{trackEntry.octave}</div>;
-}
-
-const editModes = {
-  draw: 'draw',
-  select: 'select',
-  erase: 'erase',
-};
-const defaultDrawNote = { inProgress: false, duration: 1, tone: 0, start: 0 };
-const defaultDrag = { inProgress: false, startBeat: 0, startTone: 0, shiftX: 0, shiftY: 0 };
-const defaultSelection = { active: false, startX: 0, startY: 0, top: 0, left: 0, right: 0, bottom: 0 };
-
-const defaultGridSize = 2; //in 32nd notes
-
 class Sequencer extends React.Component {
   constructor() {
     super();
+    this.getTrackEntry = this.getTrackEntry.bind(this);
     this.updateNotes = this.updateNotes.bind(this);
     this.onClearNotes = this.onClearNotes.bind(this);
     this.getGridPosition = this.getGridPosition.bind(this);
@@ -56,6 +27,8 @@ class Sequencer extends React.Component {
     this.getNoteByCoordinates = this.getNoteByCoordinates.bind(this);
     this.calculateDragDistance = this.calculateDragDistance.bind(this);
     this.getItemRectangle = this.getItemRectangle.bind(this);
+    this.seq = this.sequencer;
+    this.prp = this.props;
   }
   componentWillMount() {
     this.setState({
@@ -67,9 +40,9 @@ class Sequencer extends React.Component {
       selection: defaultSelection,
       gridSize: defaultGridSize,
     });
-    const trackCountArray = Array.apply(null, {length: this.props.trackCount}).map(Number.call, Number).reverse();
-    this.trackLanes = trackCountArray.map(this.props.getTrackLane);
-    this.trackEntries = trackCountArray.map(this.props.getTrackEntry);
+    const trackCountArray = Array.apply(null, {length: this.prp.trackCount}).map(Number.call, Number).reverse();
+    this.trackLanes = trackCountArray.map(this.prp.getTrackLane);
+    this.trackEntries = trackCountArray.map(this.prp.getTrackEntry);
     this.noteMapper = this.noteMapper.bind(this);
     document.onselectstart = () => false;
     document.ondragstart = () => false;
@@ -80,35 +53,49 @@ class Sequencer extends React.Component {
     this.getItems = () => store.getState().notes;
     this.unsubscribe = () => store.unsubscribe();
 
-    this.sequencer.onscroll = () => {
-      this.trackList.style.top = (-this.sequencer.scrollTop) + 'px';
+    this.seq.onscroll = () => {
+      this.trackList.style.top = (-this.seq.scrollTop) + 'px';
     };
-    this.sequencer.onselectstart = () => false;
-    this.sequencer.ondragstart = () => false;
+    this.seq.onselectstart = () => false;
+    this.seq.ondragstart = () => false;
     this.updateNotes();
   }
-  componentWillUnmount() {
-    this.unsubscribe();
+  componentWillUnmount() { this.unsubscribe(); }
+  getNoteFromIndex(index) {
+    const octave = Math.floor(index/12);
+    const name = noteNames[index % 12];
+    const isBlack = name.indexOf('#') !== -1;
+    return { octave, name, isBlack };
+  }
+  getTrackLane(i) { return <div key={i} style={{height: 16}} className="PianoRoll-lane"></div>; }
+  getTrackEntry(i) {
+    const trackEntry = this.getNoteFromIndex(i);
+    const trackEntryClasses = { 'PianoRoll-key': true, 'PianoRoll-key-black' : trackEntry.isBlack, 'PianoRoll-key-white' : !trackEntry.isBlack };
+    return <div key={i} style={{height: 16}} className={classNames(trackEntryClasses)}>{trackEntry.name}{trackEntry.octave}</div>;
   }
   getItemRectangle(note) {
     return {
-      left: note.start * this.props.beatWidth,
-      top: (this.props.trackCount - note.tone) * this.props.trackHeight,
-      right: (note.start + note.duration) * this.props.beatWidth,
-      bottom: (this.props.trackCount - note.tone) * this.props.trackHeight + this.props.trackHeight
+      left: note.start * this.prp.beatWidth,
+      top: (this.prp.trackCount - note.tone) * this.prp.trackHeight,
+      right: (note.start + note.duration) * this.prp.beatWidth,
+      bottom: (this.prp.trackCount - note.tone) * this.prp.trackHeight + this.prp.trackHeight
     };
   }
-  isClickOutOfSequencer(pageX, pageY) {
-    return (pageX >= this.sequencer.offsetLeft + this.sequencer.offsetWidth - 20 ||
-        pageY >= this.sequencer.offsetTop + this.sequencer.offsetHeight - 20);
+  isClickOutOfSequencer(X, Y) {
+    const L = this.seq.offsetLeft;
+    const Top = this.seq.offsetTop;
+    const W = this.seq.offsetWidth;
+    const H = this.seq.offsetHeight;
+    return (X>=L+W-20 || Y>=Top+H-20);
   }
   noteMapper(note, i) {
-    return <SequencerItem key={i}
-    left={ note.start*this.props.beatWidth }
-    top={ (this.props.trackCount - note.tone) * this.props.trackHeight }
-    width={ note.duration * this.props.beatWidth }
-    height={ this.props.trackHeight }
-    selected={ this.state.selectedItems.indexOf(i) !== -1 }
+    return <SequencerItem
+      key={i}
+      left={ note.start*this.prp.beatWidth }
+      top={ (this.prp.trackCount - note.tone) * this.prp.trackHeight }
+      width={ note.duration * this.prp.beatWidth }
+      height={ this.prp.trackHeight }
+      selected={ this.state.selectedItems.indexOf(i) !== -1 }
     />;
   }
   setEditMode(mode) {
@@ -118,50 +105,45 @@ class Sequencer extends React.Component {
   updateNotes() {
     this.setState({ displayedItems: this.getItems().map(this.noteMapper) });
   }
-  getNoteByCoordinates(pageX, pageY) {
-    const searchRectangle = {
-      left:   pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft,
-      right:  pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft,
-      top:    pageY - this.sequencer.offsetTop + this.sequencer.scrollTop,
-      bottom: pageY - this.sequencer.offsetTop + this.sequencer.scrollTop
-    };
+  getNoteByCoordinates(X, Y) {
+    const L = this.seq.offsetLeft;
+    const top = this.seq.offsetTop;
+    const scrL = this.seq.scrollLeft;
+    const scrT = this.seq.scrollTop;
+    const searchRectangle = { left: X-L+scrL, right: X-L+scrL, top: Y-top+scrT, bottom: Y-top+scrT };
     const foundNoteIndexes = this.getItems().reduce((found, note, index) => {
       const noteRectangle = this.getItemRectangle(note);
-      if  (doRectanglesIntersect(noteRectangle, searchRectangle)) {
-        return found.concat([index]);
-      }
+      if (doRectanglesIntersect(noteRectangle, searchRectangle)) return found.concat([index]);
       return found;
     }, []);
-    if (foundNoteIndexes) {
-      return foundNoteIndexes[0];
-    }
+    if (foundNoteIndexes) return foundNoteIndexes[0];
   }
-  getGridPosition(pageX, pageY) {
-    const beat = Math.floor((pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft)/this.props.beatWidth);
-    const tone = this.props.trackCount - Math.floor((pageY - this.sequencer.offsetTop + this.sequencer.scrollTop)/this.props.trackHeight);
+  getGridPosition(X, Y) {
+    const beat = Math.floor((X - this.seq.offsetLeft + this.seq.scrollLeft)/this.prp.beatWidth);
+    const tone = this.prp.trackCount - Math.floor((Y - this.seq.offsetTop + this.seq.scrollTop)/this.prp.trackHeight);
     return { beat, tone };
   }
   getNotePositionByGrid(beat, tone) {
-    const left = beat * this.props.beatWidth + 'px';
-    const top = (this.props.trackCount - tone) * this.props.trackHeight + 'px';
+    const left = beat * this.prp.beatWidth + 'px';
+    const top = (this.prp.trackCount - tone) * this.prp.trackHeight + 'px';
     return { left, top };
   }
-  calculateDragDistance(pageX, pageY) {
-    const { beat, tone } = this.getGridPosition(pageX, pageY);
+  calculateDragDistance(X, Y) {
+    const { beat, tone } = this.getGridPosition(X, Y);
     const beatDistance = this.state.gridSize * Math.floor((beat - this.state.drag.startBeat)/this.state.gridSize);
     const toneDistance = tone - this.state.drag.startTone;
     return { beatDistance, toneDistance };
   }
-  noteDragMouseUp({ pageX, pageY }) {
+  noteDragMouseUp({ X, Y }) {
     document.onmousemove = null;
     document.onmouseup = null;
-    const { beatDistance, toneDistance } = this.calculateDragDistance(pageX, pageY);
+    const { beatDistance, toneDistance } = this.calculateDragDistance(X, Y);
     this.context.store.dispatch(moveNotes(this.state.selectedItems, beatDistance, toneDistance));
     this.setState({drag: defaultDrag });
     return false;
   }
-  noteDragMouseMove({ pageX, pageY }) {
-    const { beatDistance, toneDistance } = this.calculateDragDistance(pageX, pageY);
+  noteDragMouseMove({ X, Y }) {
+    const { beatDistance, toneDistance } = this.calculateDragDistance(X, Y);
     const newDisplayedItems = this.getItems().map((currentNote, i) => {
       if (this.state.selectedItems.indexOf(i) === -1) {
         return this.noteMapper(currentNote, i);
@@ -172,19 +154,19 @@ class Sequencer extends React.Component {
     });
     this.setState({ displayedItems: newDisplayedItems });
   }
-  onSequencerMouseDown({ pageX, pageY }) {
-    if (this.isClickOutOfSequencer(pageX, pageY)) {
+  onSequencerMouseDown({ X, Y }) {
+    if (this.isClickOutOfSequencer(X, Y)) {
       return false;
     }
     const mode = this.state.editMode;
     if (mode === editModes.draw) {
-      const { beat, tone } = this.getGridPosition(pageX, pageY);
+      const { beat, tone } = this.getGridPosition(X, Y);
       const gridBeat = this.state.gridSize * Math.floor(beat/this.state.gridSize);
-      const itemUnderMouse = this.getNoteByCoordinates(pageX, pageY);
+      const itemUnderMouse = this.getNoteByCoordinates(X, Y);
       if (itemUnderMouse >= 0) {
         const target = this.state.displayedItems[itemUnderMouse];
-        const shiftX = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft - parseInt(target.props.left, 10);
-        const shiftY = pageY - this.sequencer.offsetTop + this.sequencer.scrollTop - parseInt(target.props.top, 10);
+        const shiftX = X - this.seq.offsetLeft + this.seq.scrollLeft - parseInt(target.props.left, 10);
+        const shiftY = Y - this.seq.offsetTop + this.seq.scrollTop - parseInt(target.props.top, 10);
         let newSelection = this.state.selectedItems;
         if (newSelection.indexOf(itemUnderMouse) === -1) {
           newSelection = [itemUnderMouse];
@@ -214,8 +196,8 @@ class Sequencer extends React.Component {
       });
     }
     if (mode === editModes.select) {
-      const startX = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft;
-      const startY = pageY - this.sequencer.offsetTop + this.sequencer.scrollTop;
+      const startX = X - this.seq.offsetLeft + this.seq.scrollLeft;
+      const startY = Y - this.seq.offsetTop + this.seq.scrollTop;
       this.setState({ selection: {
         active: true,
         startX,
@@ -228,8 +210,8 @@ class Sequencer extends React.Component {
     }
     return false;
   }
-  onSequencerMouseUp({ pageX, pageY }) {
-    if (this.isClickOutOfSequencer(pageX, pageY)) {
+  onSequencerMouseUp({ X, Y }) {
+    if (this.isClickOutOfSequencer(X, Y)) {
       return false;
     }
     const mode = this.state.editMode;
@@ -240,7 +222,7 @@ class Sequencer extends React.Component {
       }
     }
     if (mode === editModes.erase) {
-      const itemUnderMouse = this.getNoteByCoordinates(pageX, pageY);
+      const itemUnderMouse = this.getNoteByCoordinates(X, Y);
       if (itemUnderMouse >= 0) {
         let newSelection = this.state.selectedItems;
         if (newSelection.indexOf(itemUnderMouse) === -1) {
@@ -260,20 +242,20 @@ class Sequencer extends React.Component {
       this.setState({selection: defaultSelection, selectedItems: newlySelectedItems});
       this.setState({displayedItems: this.getItems().map((note, i) => {
         return <SequencerItem key={i}
-          left={note.start*this.props.beatWidth}
-          top={(this.props.trackCount - note.tone) * this.props.trackHeight}
-          width={note.duration * this.props.beatWidth}
-          height={this.props.trackHeight}
+          left={note.start*this.prp.beatWidth}
+          top={(this.prp.trackCount - note.tone) * this.prp.trackHeight}
+          width={note.duration * this.prp.beatWidth}
+          height={this.prp.trackHeight}
           selected={newlySelectedItems.indexOf(i) !== -1}
           />;
       })});
     }
     return false;
   }
-  onSequencerMouseMove({ pageX, pageY }) {
+  onSequencerMouseMove({ X, Y }) {
     const mode = this.state.editMode;
     if (mode === editModes.draw) {
-      const { beat, tone } = this.getGridPosition(pageX, pageY);
+      const { beat, tone } = this.getGridPosition(X, Y);
       if (!this.state.drag.inProgress && this.state.drawItem.inProgress) {
         const calculatedDuration = this.state.gridSize * Math.floor((1 + beat - this.state.drawItem.start)/this.state.gridSize);
         this.setState({
@@ -290,8 +272,8 @@ class Sequencer extends React.Component {
       if (this.state.selection.active) {
         const x1 = this.state.selection.startX;
         const y1 = this.state.selection.startY;
-        const x2 = pageX - this.sequencer.offsetLeft + this.sequencer.scrollLeft;
-        const y2 = pageY - this.sequencer.offsetTop + this.sequencer.scrollTop;
+        const x2 = X - this.seq.offsetLeft + this.seq.scrollLeft;
+        const y2 = Y - this.seq.offsetTop + this.seq.scrollTop;
         this.setState({ selection: {
           startX: x1,
           startY: y1,
@@ -325,7 +307,7 @@ class Sequencer extends React.Component {
         </ButtonGroup>
       </ButtonToolbar>
       </div>
-      <div style={{height: this.props.height, width: this.props.width}}>
+      <div style={{height: this.prp.height, width: this.prp.width}}>
         <div className="Sequencer-tracklist-outer">
           <div className="Sequencer-tracklist-inner" ref={(c) => this.trackList = c}>
           {this.trackEntries}
@@ -336,17 +318,17 @@ class Sequencer extends React.Component {
             onMouseUp={(e) => { this.onSequencerMouseUp(e); return false; }}
             onMouseMove={(e) => { this.onSequencerMouseMove(e); return false; }}>
           <div className="Sequencer-lane-inner" style={{
-            width: this.props.totalBeatCount * this.props.beatWidth,
-            height: this.props.trackCount * this.props.trackHeight
+            width: this.prp.totalBeatCount * this.prp.beatWidth,
+            height: this.prp.trackCount * this.prp.trackHeight
           }}>
           {this.trackLanes}
           {this.state.displayedItems}
           <SequencerItem display={this.state.drawItem.inProgress ? 'block' : 'none'}
             key='drawItem'
-            left={this.state.drawItem.start*this.props.beatWidth}
-            top={(this.props.trackCount - this.state.drawItem.tone)*this.props.trackHeight}
-            width={this.state.drawItem.duration * this.props.beatWidth}
-            height={this.props.trackHeight}
+            left={this.state.drawItem.start*this.prp.beatWidth}
+            top={(this.prp.trackCount - this.state.drawItem.tone)*this.prp.trackHeight}
+            width={this.state.drawItem.duration * this.prp.beatWidth}
+            height={this.prp.trackHeight}
           />
           <SequencerSelection rect={this.state.selection}></SequencerSelection>
           </div>

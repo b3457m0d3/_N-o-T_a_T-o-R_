@@ -1,4 +1,4 @@
-import { noteActionNames } from '../constants/note-action-names';
+import { actionNames } from '../constants/action-names';
 
 export function addNote(tone, start, duration) {
   return {
