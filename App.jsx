@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { createStore, compose } from 'redux';
 import reduxReset from 'redux-reset';
 import { Provider } from 'react-redux';
-import { undoable } from './reducers/undoable';
+
 
 import reducer from './reducers';
 import PianoRoll from './components/PianoRoll.jsx';
