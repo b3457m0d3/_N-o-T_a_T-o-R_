@@ -3,16 +3,16 @@ import ReactDOM from 'react-dom';
 import { createStore, compose } from 'redux';
 import reduxReset from 'redux-reset';
 import { Provider } from 'react-redux';
+import undoable, { distinctState } from 'redux-undo';
 
 
-import reducer from './reducers';
+import sequencer from './reducers/sequencer';
 import PianoRoll from './components/PianoRoll.jsx';
 
-const undoRedo = undoable(reducer);
 const enHanceCreateStore = compose(
     reduxReset()  // Will use 'RESET' as default action.type to trigger reset
   )(createStore);
-const store = enHanceCreateStore(undoRedo);
+const store = enHanceCreateStore(undoable(sequencer,{ filter: distinctState() }));
 
 function App() {
   return (

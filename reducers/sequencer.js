@@ -38,10 +38,4 @@ const actionProcessors = {
   [noteActionNames.MOVE_NOTES] : moveNotes
 };
 
-const initialState = {
-  past: [],
-  present: [],
-  future: []
-};
-
-export default createReducer(actionProcessors, initialState);
+export default createReducer(actionProcessors);
