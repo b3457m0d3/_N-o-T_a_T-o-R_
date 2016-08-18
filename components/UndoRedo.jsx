@@ -1,22 +1,21 @@
 import React from 'react'
 import { ActionCreators as UndoActionCreators } from 'redux-undo'
+import { Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 
 let UndoRedo = ({ canUndo, canRedo, onUndo, onRedo }) => (
-  <p>
-    <button onClick={onUndo} disabled={!canUndo}>
-      Undo
-    </button>
-    <button onClick={onRedo} disabled={!canRedo}>
-      Redo
-    </button>
-  </p>
+  <Button onClick={onUndo} {!canUndo?'disabled':''}>
+    Undo
+  </Button>
+  <Button onClick={onRedo} {!canRedo?'disabled':''}>
+    Redo
+  </Button>
 )
 
 const mapStateToProps = (state) => {
   return {
-    canUndo: state.todos.past.length > 0,
-    canRedo: state.todos.future.length > 0
+    canUndo: state.notes.past.length > 0,
+    canRedo: state.notes.future.length > 0
   }
 }
 

@@ -1,9 +1,11 @@
 export function createReducer(processors, initialState) {
   return (state = initialState, action) => {
-    console.log(action);
+    console.log(state);
     if (!processors[action.type]) {
+      console.log(state);
       return state;
     }
+    console.log(state);
     return processors[action.type](state, action);
   };
 }

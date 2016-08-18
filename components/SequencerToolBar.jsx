@@ -3,6 +3,7 @@ import { Button, ButtonGroup, Glyphicon, ButtonToolbar } from 'react-bootstrap';
 import defaults from '../constants/defaults';
 import actions from '../actions';
 import SequencerGridDropdown from './SequencerGridDropdown.jsx';
+import UndoRedo from './UndoRedo.jsx';
 import './styles/SequencerToolBar.css';
 
 class SequencerToolBar extends React.Component {
@@ -42,6 +43,7 @@ class SequencerToolBar extends React.Component {
               <Button onClick={() => this.onUndo() }><Glyphicon glyph="backward" /></Button>
               <Button onClick={() => this.selectEveryOther() }><Glyphicon glyph="backward" /></Button>
               <Button active={this.state.editMode === defaults.editModes.select} onClick={() => this.setEditMode(defaults.editModes.select) }><Glyphicon glyph="unchecked" /></Button>
+              <UndoRedo/>
             </ButtonGroup>
           </ButtonToolbar>
         </div>

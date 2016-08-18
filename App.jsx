@@ -6,17 +6,12 @@ import { Provider } from 'react-redux';
 
 import reducer from './reducers';
 import PianoRoll from './components/PianoRoll.jsx';
-var compose = function () {
-  var fns = arguments;
-
-  return function (result) {
-    for (var i = fns.length - 1; i > -1; i--) {
-      result = fns[i].call(this, result);
-    }
-
-    return result;
+function compose(...fnArgs) {
+  const [first, ...funcs] = fnArgs.reverse();
+  return function(...args) {
+    return funcs.reduce((res, fn) => fn(res), first(...args));
   };
-};
+}
 const enHanceCreateStore = compose(
     //applyMiddleware(...),
     reduxReset()  // Will use 'RESET' as default action.type to trigger reset
