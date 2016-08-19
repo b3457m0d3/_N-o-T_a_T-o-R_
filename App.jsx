@@ -11,8 +11,7 @@ import reducer from './reducers';
 import PianoRoll from './components/PianoRoll.jsx';
 
 @connect((state) => ({}))
-
-const enHanceCreateStore = compose(reduxReset())(createStore);
+const enHanceCreateStore = compose(reduxReset(),reduxReactRouter({ createHistory }),)(createStore);
 const store = enHanceCreateStore(reducer, window.devToolsExtension && window.devToolsExtension());
 
 function App() {
