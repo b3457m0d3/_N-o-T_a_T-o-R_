@@ -61,15 +61,15 @@ class Sequencer extends React.Component {
     this.updateNotes();
   }
   componentWillUnmount() { this.unsubscribe(); }
-  getNoteFromIndex(index) {
+  static getNoteFromIndex(index) {
     const octave = Math.floor(index/12);
     const name = noteNames[index % 12];
     const isBlack = name.indexOf('#') !== -1;
     return { octave, name, isBlack };
   }
-  getTrackLane(i) { return <div key={i} style={{height: 16}} className="PianoRoll-lane"></div>; }
-  getTrackEntry(i) {
-    const trackEntry = this.getNoteFromIndex(i);
+  static getTrackLane(i) { return <div key={i} style={{height: 16}} className="PianoRoll-lane"></div>; }
+  static getTrackEntry(i) {
+    const trackEntry = .getNoteFromIndex(i);
     const trackEntryClasses = { 'PianoRoll-key': true, 'PianoRoll-key-black' : trackEntry.isBlack, 'PianoRoll-key-white' : !trackEntry.isBlack };
     return <div key={i} style={{height: 16}} className={classNames(trackEntryClasses)}>{trackEntry.name}{trackEntry.octave}</div>;
   }
