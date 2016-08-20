@@ -1,7 +1,7 @@
 import constants from '../constants';
 import { createReducer } from '../utils';
 
-const { noteActionNames } = constants;
+const { actionNames } = constants;
 
 function addNote(state, { note }) {
   return state.concat([note]);
@@ -33,9 +33,9 @@ function moveNotes(state, {ids, beats, tones}) {
 }
 
 const actionProcessors = {
-  [noteActionNames.ADD_NOTE]: addNote,
-  [noteActionNames.REMOVE_NOTES]: removeNotes,
-  [noteActionNames.MOVE_NOTES] : moveNotes
+  [actionNames.ADD_NOTE]: addNote,
+  [actionNames.REMOVE_NOTES]: removeNotes,
+  [actionNames.MOVE_NOTES] : moveNotes
 };
 
 const initialState = [];

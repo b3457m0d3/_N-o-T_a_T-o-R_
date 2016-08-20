@@ -1,21 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, compose } from 'redux';
-import reduxReset from 'redux-reset';
 import { Provider } from 'react-redux';
-
+import createEnhancedStore from './store';
 import reducer from './reducers';
-import PianoRoll from './components/PianoRoll.jsx';
+import NotatorContainer from './components/NotatorContainer.jsx';
 
-const enHanceCreateStore = compose(reduxReset())(createStore);
-const store = enHanceCreateStore(reducer, window.devToolsExtension && window.devToolsExtension());
+const store = createEnhancedStore(reducer, window.devToolsExtension && window.devToolsExtension());
 
-function App() {
+function AppContainer() {
   return (
     <Provider store={store}>
-      <PianoRoll/>
+      <NotatorContainer/>
     </Provider>
   );
 }
 
-ReactDOM.render(<App />, document.getElementById('app'));
+ReactDOM.render(<AppContainer />, document.getElementById('app'));

@@ -1,4 +1,4 @@
-export const {
+export default {
   editModes: {
     draw: 'draw',
     select: 'select',

@@ -1,7 +1,7 @@
 import React from 'react';
-import './styles/SequencerSelection.css';
+import './styles/NotatorSelection.css';
 
-class SequencerSelection extends React.Component {
+class NotatorSelection extends React.Component {
   render() {
     return <div style={{
       left: this.props.rect.left,
@@ -9,8 +9,8 @@ class SequencerSelection extends React.Component {
       width: this.props.rect.right - this.props.rect.left,
       height: this.props.rect.bottom - this.props.rect.top,
       display: this.props.rect.active ? 'block' : 'none'
-    }} className="SequencerSelection" ></div>;
+    }} className="NotatorSelection" ></div>;
   }
 }
 
-export default SequencerSelection;
+export default NotatorSelection;

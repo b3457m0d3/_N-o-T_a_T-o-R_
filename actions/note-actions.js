@@ -2,34 +2,37 @@ import { actionNames } from '../constants/action-names';
 
 export function addNote(tone, start, duration) {
   return {
-    type: noteActionNames.ADD_NOTE,
+    type: actionNames.ADD_NOTE,
     note: {
-      tone,
-      start,
-      duration
+      tone, start, duration
     }
   };
 }
 
 export function removeNotes(ids) {
   return {
-    type: noteActionNames.REMOVE_NOTES,
+    type: actionNames.REMOVE_NOTES,
     ids
   };
 }
 
 export function moveNotes(ids, beats, tones) {
   return {
-    type: noteActionNames.MOVE_NOTES,
-    ids,
-    beats,
-    tones
+    type: actionNames.MOVE_NOTES,
+    ids, beats, tones
   };
 }
 
 export function clearNotes() {
   return {
-    type: noteActionNames.CLEAR_NOTES,
+    type: actionNames.CLEAR_NOTES,
     null
+  };
+}
+
+export function setEditMode(mode){
+  return {
+    type: actionNames.SET_EDIT_MODE,
+    mode
   };
 }

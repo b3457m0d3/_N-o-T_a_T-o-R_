@@ -4,7 +4,7 @@ div {
   display: block;
 }
 
-.Sequencer-tracklist-outer {
+.Notator-tracklist-outer {
   float: left;
   overflow: hidden;
   position: relative;
@@ -12,25 +12,25 @@ div {
   height: 100%;
 }
 
-.Sequencer-tracklist-inner {
+.Notator-tracklist-inner {
   overflow: hidden;
   width: 50px;
   position: absolute;
   z-index: 10;
 }
 
-.Sequencer-lane-outer {
+.Notator-lane-outer {
   height: 100%;
   overflow: scroll;
   margin-left: 50px;
   z-index: 10000;
 }
 
-.Sequencer-lane-inner {
+.Notator-lane-inner {
   overflow: hidden;
   position: relative;
 }
 
-.Sequencer-toolbar {
+.Notator-toolbar {
   margin: 5px;
 }

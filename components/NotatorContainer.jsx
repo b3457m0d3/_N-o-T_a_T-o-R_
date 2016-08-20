@@ -1,56 +1,38 @@
 import React from 'react';
-import { Button, ButtonGroup, Glyphicon, ButtonToolbar } from 'react-bootstrap';
-
+import { noteNames } from '../constants/note-names';
 import { doRectanglesIntersect } from '../utils';
 import actions from '../actions';
-import classNames from 'classnames';
-import { noteNames } from '../constants/note-names'
 import config from '../constants/config.js';
-import SequencerItem from './SequencerItem.jsx';
-import SequencerSelection from './SequencerSelection.jsx';
-import SequencerGridDropdown from './SequencerGridDropdown.jsx';
+import Notator from './Notator.jsx';
+import NotatorToolBar from './NotatorToolBar.jsx';
 
-import './styles/Sequencer.css';
-
+import './styles/PianoRoll.css';
 const { addNote, removeNotes, moveNotes, clearNotes } = actions;
 
-class Sequencer extends React.Component {
+
+class NotatorContainer extends React.Component {
   constructor() {
     super();
-    this.getTrackEntry = this.getTrackEntry.bind(this);
-    this.updateNotes = this.updateNotes.bind(this);
-    this.onClearNotes = this.onClearNotes.bind(this);
-    this.getGridPosition = this.getGridPosition.bind(this);
-    this.noteDragMouseUp = this.noteDragMouseUp.bind(this);
-    this.noteDragMouseMove= this.noteDragMouseMove.bind(this);
-    this.isClickOutOfSequencer = this.isClickOutOfSequencer.bind(this);
-    this.getNoteByCoordinates = this.getNoteByCoordinates.bind(this);
-    this.calculateDragDistance = this.calculateDragDistance.bind(this);
-    this.getItemRectangle = this.getItemRectangle.bind(this);
-    this.seq = this.sequencer;
-    this.prp = this.props;
   }
+  //==============================================[ Life-Cycle Hooks ]========//
   componentWillMount() {
     this.setState({
-      drag: defaultDrag,
+      drag: config.defaultDrag,
       displayedItems: [],
-      editMode: editModes.draw,
-      drawItem: defaultDrawNote,
+      editMode: config.editModes.draw,
+      drawItem: config.defaultDrawNote,
       selectedItems: [],
-      selection: defaultSelection,
-      gridSize: defaultGridSize,
+      selection: config.defaultSelection,
+      gridSize: config.defaultGridSize
     });
-    const trackCountArray = Array.apply(null, {length: this.prp.trackCount}).map(Number.call, Number).reverse();
-    this.trackLanes = trackCountArray.map(this.prp.getTrackLane);
-    this.trackEntries = trackCountArray.map(this.prp.getTrackEntry);
-    this.noteMapper = this.noteMapper.bind(this);
+
     document.onselectstart = () => false;
     document.ondragstart = () => false;
   }
   componentDidMount() {
     const { store } = this.context;
     store.subscribe(this.updateNotes);
-    this.getItems = () => store.getState().notes;
+    this.getPattern = () => store.getState().notes;
     this.unsubscribe = () => store.unsubscribe();
 
     this.seq.onscroll = () => {
@@ -60,16 +42,20 @@ class Sequencer extends React.Component {
     this.seq.ondragstart = () => false;
     this.updateNotes();
   }
-  componentWillUnmount() { this.unsubscribe(); }
-  static getNoteFromIndex(index) {
+  componentWillUnmount() { /*this.unsubscribe();*/ }
+  setEditMode(mode) {
+    this.setState({ drawItem: defaultDrawNote });
+    this.setState({ editMode: mode });
+  }
+  getNoteFromIndex(index) {
     const octave = Math.floor(index/12);
     const name = noteNames[index % 12];
     const isBlack = name.indexOf('#') !== -1;
     return { octave, name, isBlack };
   }
-  static getTrackLane(i) { return <div key={i} style={{height: 16}} className="PianoRoll-lane"></div>; }
-  static getTrackEntry(i) {
-    const trackEntry = .getNoteFromIndex(i);
+  getTrackLane(i) { return <div key={i} style={{height: 16}} className="PianoRoll-lane"></div>; }
+  getTrackEntry(i) {
+    const trackEntry = this.getNoteFromIndex(i);
     const trackEntryClasses = { 'PianoRoll-key': true, 'PianoRoll-key-black' : trackEntry.isBlack, 'PianoRoll-key-white' : !trackEntry.isBlack };
     return <div key={i} style={{height: 16}} className={classNames(trackEntryClasses)}>{trackEntry.name}{trackEntry.octave}</div>;
   }
@@ -81,7 +67,7 @@ class Sequencer extends React.Component {
       bottom: (this.prp.trackCount - note.tone) * this.prp.trackHeight + this.prp.trackHeight
     };
   }
-  isClickOutOfSequencer(X, Y) {
+  isClickOutOfNotator(X, Y) {
     const L = this.seq.offsetLeft;
     const Top = this.seq.offsetTop;
     const W = this.seq.offsetWidth;
@@ -89,7 +75,7 @@ class Sequencer extends React.Component {
     return (X>=L+W-20 || Y>=Top+H-20);
   }
   noteMapper(note, i) {
-    return <SequencerItem
+    return <NotatorItem
       key={i}
       left={ note.start*this.prp.beatWidth }
       top={ (this.prp.trackCount - note.tone) * this.prp.trackHeight }
@@ -98,12 +84,9 @@ class Sequencer extends React.Component {
       selected={ this.state.selectedItems.indexOf(i) !== -1 }
     />;
   }
-  setEditMode(mode) {
-    this.setState({ drawItem: defaultDrawNote });
-    this.setState({ editMode: mode });
-  }
+
   updateNotes() {
-    this.setState({ displayedItems: this.getItems().map(this.noteMapper) });
+    this.setState({ displayedItems: this.getPattern().map(this.noteMapper) });
   }
   getNoteByCoordinates(X, Y) {
     const L = this.seq.offsetLeft;
@@ -111,7 +94,7 @@ class Sequencer extends React.Component {
     const scrL = this.seq.scrollLeft;
     const scrT = this.seq.scrollTop;
     const searchRectangle = { left: X-L+scrL, right: X-L+scrL, top: Y-top+scrT, bottom: Y-top+scrT };
-    const foundNoteIndexes = this.getItems().reduce((found, note, index) => {
+    const foundNoteIndexes = this.getPattern().reduce((found, note, index) => {
       const noteRectangle = this.getItemRectangle(note);
       if (doRectanglesIntersect(noteRectangle, searchRectangle)) return found.concat([index]);
       return found;
@@ -144,7 +127,7 @@ class Sequencer extends React.Component {
   }
   noteDragMouseMove({ X, Y }) {
     const { beatDistance, toneDistance } = this.calculateDragDistance(X, Y);
-    const newDisplayedItems = this.getItems().map((currentNote, i) => {
+    const newDisplayedItems = this.getPattern().map((currentNote, i) => {
       if (this.state.selectedItems.indexOf(i) === -1) {
         return this.noteMapper(currentNote, i);
       }
@@ -154,8 +137,8 @@ class Sequencer extends React.Component {
     });
     this.setState({ displayedItems: newDisplayedItems });
   }
-  onSequencerMouseDown({ X, Y }) {
-    if (this.isClickOutOfSequencer(X, Y)) {
+  onNotatorMouseDown({ X, Y }) {
+    if (this.isClickOutOfNotator(X, Y)) {
       return false;
     }
     const mode = this.state.editMode;
@@ -210,8 +193,8 @@ class Sequencer extends React.Component {
     }
     return false;
   }
-  onSequencerMouseUp({ X, Y }) {
-    if (this.isClickOutOfSequencer(X, Y)) {
+  onNotatorMouseUp({ X, Y }) {
+    if (this.isClickOutOfNotator(X, Y)) {
       return false;
     }
     const mode = this.state.editMode;
@@ -233,15 +216,15 @@ class Sequencer extends React.Component {
       }
     }
     if (mode === editModes.select) {
-      const newlySelectedItems = this.getItems().reduce((acc, note, index) => {
+      const newlySelectedItems = this.getPattern().reduce((acc, note, index) => {
         if (doRectanglesIntersect(this.getItemRectangle(note), this.state.selection)) {
           return acc.concat(index);
         }
         return acc;
       }, []);
       this.setState({selection: defaultSelection, selectedItems: newlySelectedItems});
-      this.setState({displayedItems: this.getItems().map((note, i) => {
-        return <SequencerItem key={i}
+      this.setState({displayedItems: this.getPattern().map((note, i) => {
+        return <NotatorItem key={i}
           left={note.start*this.prp.beatWidth}
           top={(this.prp.trackCount - note.tone) * this.prp.trackHeight}
           width={note.duration * this.prp.beatWidth}
@@ -252,7 +235,7 @@ class Sequencer extends React.Component {
     }
     return false;
   }
-  onSequencerMouseMove({ X, Y }) {
+  onNotatorMouseMove({ X, Y }) {
     const mode = this.state.editMode;
     if (mode === editModes.draw) {
       const { beat, tone } = this.getGridPosition(X, Y);
@@ -287,60 +270,23 @@ class Sequencer extends React.Component {
     }
     return false;
   }
-/*ADDED BY B3457M0D3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
-  onClearNotes(){
-    this.context.store.dispatch({ type: 'RESET' });
-  }
-                  /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-~~~~~~~~~~~~~~~~^~*/
-
-  render() {
+  onClearNotes(){ store.dispatch({ type: 'RESET' }); }
+  render(){
     return (
       <div>
-      <div className="Sequencer-toolbar">
-      <ButtonToolbar>
-        <SequencerGridDropdown selected={this.state.gridSize} onSelection={(i) => this.setState({gridSize: i})}></SequencerGridDropdown>
-        <ButtonGroup>
-          <Button active={this.state.editMode === editModes.draw} onClick={() => this.setEditMode(editModes.draw) }><Glyphicon glyph="pencil" /></Button>
-          <Button active={this.state.editMode === editModes.erase} onClick={() => this.setEditMode(editModes.erase) }><Glyphicon glyph="remove" /></Button>
-          <Button onClick={() => this.onClearNotes() }><Glyphicon glyph="remove" />(ALL)</Button>
-          <Button active={this.state.editMode === editModes.select} onClick={() => this.setEditMode(editModes.select) }><Glyphicon glyph="unchecked" /></Button>
-        </ButtonGroup>
-      </ButtonToolbar>
+        <NotatorToolBar></NotatorToolBar>
+        <Notator
+          width='600px'
+          height='300px'
+          totalBeatCount={64}
+          trackCount={60}
+          beatWidth={24}
+          trackHeight={16}
+          getTrackEntry={this.getTrackEntry}
+          getTrackLane={this.getTrackLane}/>
       </div>
-      <div style={{height: this.prp.height, width: this.prp.width}}>
-        <div className="Sequencer-tracklist-outer">
-          <div className="Sequencer-tracklist-inner" ref={(c) => this.trackList = c}>
-          {this.trackEntries}
-          </div>
-        </div>
-        <div className="Sequencer-lane-outer" ref={(c) => this.sequencer = c}
-            onMouseDown={(e) => { this.onSequencerMouseDown(e); return false; }}
-            onMouseUp={(e) => { this.onSequencerMouseUp(e); return false; }}
-            onMouseMove={(e) => { this.onSequencerMouseMove(e); return false; }}>
-          <div className="Sequencer-lane-inner" style={{
-            width: this.prp.totalBeatCount * this.prp.beatWidth,
-            height: this.prp.trackCount * this.prp.trackHeight
-          }}>
-          {this.trackLanes}
-          {this.state.displayedItems}
-          <SequencerItem display={this.state.drawItem.inProgress ? 'block' : 'none'}
-            key='drawItem'
-            left={this.state.drawItem.start*this.prp.beatWidth}
-            top={(this.prp.trackCount - this.state.drawItem.tone)*this.prp.trackHeight}
-            width={this.state.drawItem.duration * this.prp.beatWidth}
-            height={this.prp.trackHeight}
-          />
-          <SequencerSelection rect={this.state.selection}></SequencerSelection>
-          </div>
-        </div>
-      </div>
-      </div>
-      );
+    );
   }
 }
 
-Sequencer.contextTypes = {
-  store: React.PropTypes.object
-};
-
-export default Sequencer;
+export default NotatorContainer;

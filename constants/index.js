@@ -1,5 +1,5 @@
-import { noteActionNames } from './note-action-names';
+import { actionNames } from './action-names';
 
 export default {
-  noteActionNames
+  actionNames
 };

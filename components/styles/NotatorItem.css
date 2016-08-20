@@ -1,4 +1,4 @@
-.SequencerItem-note {
+.NotatorItem-note {
   background-color: pink;
   box-sizing: border-box;
   border: 1px solid white;
@@ -6,11 +6,11 @@
   z-index: 5;
 }
 
-.SequencerItem-selected {
+.NotatorItem-selected {
   border: 1px solid red;
 }
 
-.SequencerItem-dragged {
+.NotatorItem-dragged {
   box-shadow: 5px 5px 20px 0px #000000;
   z-index: 10000;
 }
